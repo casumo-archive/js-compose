@@ -1,0 +1,11 @@
+{
+  "name": "js-compose",
+  "version": "1.0.0",
+  "description": "Dependency injection container with plain object dsl",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Casumo <frontend@casumo.com> (https://www.casumo.com/)",
+  "license": "MIT"
+}
