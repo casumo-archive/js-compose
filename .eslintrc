@@ -1,5 +1,8 @@
 {
-  "extends": "casumo/configurations/es6",
-  "rules": {
-  }
+    "extends": "casumo/configurations/es6",
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "rules": {
+    }
 }
