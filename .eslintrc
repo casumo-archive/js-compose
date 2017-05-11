@@ -1,0 +1,5 @@
+{
+  "extends": "casumo/configurations/es6",
+  "rules": {
+  }
+}
