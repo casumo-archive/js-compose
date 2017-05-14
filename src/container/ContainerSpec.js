@@ -1,12 +1,17 @@
+/* eslint-env mocha */
+
 import { expect } from 'chai';
-import * as Container from './Container';
-import { _, Promise } from '../globals';
+import Container from './Container';
+import { _ } from '../globals';
 
 describe('Container', function () {
 
     it('should do something', function () {
-        return Promise.resolve().then(function () {
-            expect(_.identity(true)).to.equal(true);
+
+        const container = new Container();
+
+        return container.get().then(function (value) {
+            expect(_.identity(value)).to.equal(true);
         });
     });
 

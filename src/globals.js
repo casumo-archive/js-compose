@@ -5,11 +5,11 @@
  * with some risks which can be allieviated with unit tests.
  */
 
-export var _;
+export let _;
 
-export var Promise;
+export let Promise;
 
-export function configure(
+export function configure (
     underscoreModule,
     PromiseConstructor
 ) {

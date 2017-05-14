@@ -1,12 +1,14 @@
+import { Promise } from '../globals';
 
-export class Container {
+export default class Container {
 
     /**
      * @param {string} id
      *
      * @return {Promise}
      */
-    get(id) {
+    get () {
+        return Promise.resolve(true);
     }
 
 }
