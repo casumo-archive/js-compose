@@ -11,10 +11,13 @@
   "repository": "git@github.com:Casumo/js-compose.git",
   "devDependencies": {
     "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
     "eslint-config-casumo": "^1.3.0",
     "lodash": "^4.17.4",
     "mocha": "^3.3.0",
     "mocha-webpack": "^0.7.0",
+    "sinon": "^2.2.0",
+    "sinon-chai": "^2.10.0",
     "webpack": "^2.5.1"
   }
 }
