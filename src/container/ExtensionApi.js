@@ -3,7 +3,7 @@ import { _ } from '../globals';
 /**
  * This is passed to most of the extension functions
  */
-export default function ExtensionApi(container, serviceId, serviceDefinition, resolveArgs) {
+export default function ExtensionApi (container, serviceId, serviceDefinition, resolveArgs) {
 
     this.container = _.extend({}, container, {
         chain: container.chain.concat(serviceId)
@@ -26,7 +26,7 @@ export default function ExtensionApi(container, serviceId, serviceDefinition, re
      *
      * @return {Promise}
      */
-    this.resolveArg = function(argDefinition) {
+    this.resolveArg = function (argDefinition) {
         return this.resolveArgs([argDefinition])[0];
     };
 
