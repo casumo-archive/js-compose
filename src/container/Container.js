@@ -2,25 +2,15 @@ import { _, Promise } from '../globals';
 import ContainerError from './ContainerError';
 import ExtensionApi from './ExtensionApi';
 
-/**
- * Shim for function available in later underscore versions.
- * @todo Update underscore and remove this
- */
-function property (key) {
-    return function (object) {
-        return object[key];
-    };
-}
-
 function countOccurrences (array, item) {
-    return array.filter( _.isEqual.bind(_, item) ).length;
+    return array.filter(_.isEqual.bind(_, item)).length;
 }
 
 export default function Container (extensions, config) {
-    this.moduleLoaders = _.filter(extensions, property('canLoadModule'));
-    this.argResolvers = _.filter(extensions, property('canResolveArg'));
-    this.initialisers = _.filter(extensions, property('canInitialise'));
-    this.extraHandlers = _.filter(extensions, property('canHandleExtra'));
+    this.moduleLoaders = _.filter(extensions, _.property('canLoadModule'));
+    this.argResolvers = _.filter(extensions, _.property('canResolveArg'));
+    this.initialisers = _.filter(extensions, _.property('canInitialise'));
+    this.extraHandlers = _.filter(extensions, _.property('canHandleExtra'));
     this.config = config;
     this.cache = {};
     this.chain = [];
@@ -31,31 +21,30 @@ export default function Container (extensions, config) {
  *
  * @return {Promise}
  */
-Container.prototype.get = function(id) {
+Container.prototype.get = function (id) {
 
-    var self = this,
-        output,
-        definition = self.config.services[id],
-        mappedExtraHandlers,
-        ComposedError = _.partial(ContainerError, id),
-        extensionApi;
+    const self = this;
+    const definition = self.config.services[id];
+    let mappedExtraHandlers;
+    const ComposedError = _.partial(ContainerError, id);
+    const extensionApi = new ExtensionApi(self, id, definition, resolveArgs);
 
-    function resolveArgs(argDefinitions) {
+    function resolveArgs (argDefinitions) {
 
-        return _.map(argDefinitions || [], function(argDefinition) {
+        return _.map(argDefinitions || [], (argDefinition) => {
 
-            var argResolver = _.find(self.argResolvers, function(argResolver) {
+            const argResolver = _.find(self.argResolvers, (argResolver) => {
                 return argResolver.canResolveArg(argDefinition);
             });
 
             if (!argResolver) {
-                throw new Error('No arg resolver for ' + argDefinition);
+                throw new Error(`No arg resolver for ${argDefinition}`);
             }
 
-            return argResolver.resolveArg(argDefinition, extensionApi).then(null, function(error) {
+            return argResolver.resolveArg(argDefinition, extensionApi).then(null, (error) => {
 
                 if (!(error instanceof ContainerError)) {
-                    error.message = 'Arg resolver failed for ' + argDefinition + '. Reason: ' + error.message;
+                    error.message = `Arg resolver failed for ${argDefinition}. Reason: ${error.message}`;
                 }
 
                 throw error;
@@ -65,37 +54,31 @@ Container.prototype.get = function(id) {
 
     }
 
-    extensionApi = new ExtensionApi(self, id, definition, resolveArgs);
-
-    output = self.cache[id] || new Promise(function(resolve) {
-
-        var promises,
-            moduleLoader,
-            initialiser;
+    const output = self.cache[id] || new Promise((resolve) => {
 
         if (!definition) {
             throw new Error('Missing definition');
         }
 
         if (countOccurrences(self.chain, id) > 1) {
-            throw new Error('Circular dependency detected: ' + self.chain.concat(id).join(', '));
+            throw new Error(`Circular dependency detected: ${self.chain.concat(id).join(', ')}`);
         }
 
-        mappedExtraHandlers = _.map(definition.extras || [], function(extraDefinition) {
+        mappedExtraHandlers = _.map(definition.extras || [], (extraDefinition) => {
 
-            var handler = _.find(self.extraHandlers, function(extraHandler) {
+            const handler = _.find(self.extraHandlers, (extraHandler) => {
                 return extraHandler.canHandleExtra(extraDefinition, extensionApi);
             });
 
             if (!handler) {
-                throw new Error('No extra handler for ' + extraDefinition);
+                throw new Error(`No extra handler for ${extraDefinition}`);
             }
 
             return handler;
 
         });
 
-        moduleLoader = _.find(self.moduleLoaders, function(moduleLoader) {
+        const moduleLoader = _.find(self.moduleLoaders, (moduleLoader) => {
             return moduleLoader.canLoadModule(extensionApi);
         });
 
@@ -103,11 +86,11 @@ Container.prototype.get = function(id) {
             throw new Error('No module loader');
         }
 
-        promises = resolveArgs(definition.args);
+        const promises = resolveArgs(definition.args);
 
-        promises.unshift( moduleLoader.loadModule(extensionApi) );
+        promises.unshift(moduleLoader.loadModule(extensionApi));
 
-        initialiser = _.find(self.initialisers, function(initialiser) {
+        const initialiser = _.find(self.initialisers, (initialiser) => {
             return initialiser.canInitialise(extensionApi);
         });
 
@@ -115,26 +98,27 @@ Container.prototype.get = function(id) {
             throw new Error('No initialiser');
         }
 
-        self.cache[id] = Promise.all(promises).then(function(contents) {
+        self.cache[id] = Promise.all(promises).then((contents) => {
 
-            var initialisedPromises = _.map(mappedExtraHandlers, function(handler, extraIndex) {
+            const initialisedPromises = _.map(mappedExtraHandlers, (handler, extraIndex) => {
                 if (handler.beforeServiceInitialised) {
                     return handler.beforeServiceInitialised(definition.extras[extraIndex], extensionApi);
                 }
             });
 
-            return Promise.all(initialisedPromises).then(function() {
+            return Promise.all(initialisedPromises).then(() => {
                 return contents;
             });
 
-        }).then(function(contents) {
+        }).then((contents) => {
 
+            // eslint-disable-next-line prefer-spread
             return initialiser.initialise.apply(
                 initialiser,
                 [
-                    function instanceCreatedCallback(instance) {
+                    function instanceCreatedCallback (instance) {
 
-                        mappedExtraHandlers.forEach(function(handler, extraIndex) {
+                        mappedExtraHandlers.forEach((handler, extraIndex) => {
 
                             if (handler.onServiceInstanceCreated) {
 
@@ -152,15 +136,19 @@ Container.prototype.get = function(id) {
                 ].concat(contents)
             );
 
-        }).then(function(instance) {
+        }).then((instance) => {
 
-            var initialisedPromises = _.map(mappedExtraHandlers, function(handler, extraIndex) {
+            const initialisedPromises = _.map(mappedExtraHandlers, (handler, extraIndex) => {
                 if (handler.onServiceInitialised) {
-                    return handler.onServiceInitialised(instance, definition.extras[extraIndex], extensionApi);
+                    return handler.onServiceInitialised(
+                        instance,
+                        definition.extras[extraIndex],
+                        extensionApi
+                    );
                 }
             });
 
-            return Promise.all(initialisedPromises).then(function() {
+            return Promise.all(initialisedPromises).then(() => {
                 return instance;
             });
 
@@ -168,7 +156,7 @@ Container.prototype.get = function(id) {
 
         resolve(self.cache[id]);
 
-    }).then(null, function(error) {
+    }).then(null, (error) => {
 
         if (error instanceof ContainerError) {
             throw error;
@@ -177,7 +165,7 @@ Container.prototype.get = function(id) {
         throw new ComposedError(error);
     });
 
-    _.each(mappedExtraHandlers, function(handler, extraIndex) {
+    _.each(mappedExtraHandlers, (handler, extraIndex) => {
         if (handler.onGetComplete) {
             handler.onGetComplete(definition.extras[extraIndex], extensionApi);
         }
@@ -196,7 +184,7 @@ Container.prototype.get = function(id) {
 export function defaultInitialiser (initialiser) {
 
     return _.extend({}, initialiser, {
-        canInitialise: function(extensionApi) {
+        canInitialise (extensionApi) {
 
             if (!extensionApi.serviceDefinition.init) {
                 return true;
@@ -205,4 +193,4 @@ export function defaultInitialiser (initialiser) {
             return initialiser.canInitialise(extensionApi);
         }
     });
-};
+}
