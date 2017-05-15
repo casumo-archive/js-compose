@@ -1,46 +1,47 @@
+/* eslint no-unused-vars: 0 */
 import * as sinon from 'sinon';
 
 export const containerDoubles = {
 
-    container: function() {
+    container () {
         return sinon.stub({
             cache: {},
-            get: function(serviceId) {}
+            get (serviceId) {}
         });
     },
 
-    moduleLoader: function() {
+    moduleLoader () {
         return sinon.stub({
-            canLoadModule: function(extensionApi) {},
-            loadModule: function(extensionApi) {}
+            canLoadModule (extensionApi) {},
+            loadModule (extensionApi) {}
         });
     },
 
-    argResolver: function() {
+    argResolver () {
         return sinon.stub({
-            canResolveArg: function(argDefinition) {},
-            resolveArg: function(argDefinition, extensionApi) {}
+            canResolveArg (argDefinition) {},
+            resolveArg (argDefinition, extensionApi) {}
         });
     },
 
-    initialiser: function() {
+    initialiser () {
         return sinon.stub({
-            canInitialise: function(extensionApi) {},
-            initialise: function(instanceCreatedCallback, loadedModule) {}
+            canInitialise (extensionApi) {},
+            initialise (instanceCreatedCallback, loadedModule) {}
         });
     },
 
-    extraHandler: function() {
+    extraHandler () {
         return sinon.stub({
-            canHandleExtra: function(extraDefinition, extensionApi) {},
-            beforeServiceInitialised: function(extraDefinition, extensionApi) {},
-            onServiceInitialised: function(instance, extraDefinition, extensionApi) {},
-            onServiceInstanceCreated: function(instance, extraDefinition, extensionApi) {},
-            onGetComplete: function(extraDefinition, extensionApi) {}
+            canHandleExtra (extraDefinition, extensionApi) {},
+            beforeServiceInitialised (extraDefinition, extensionApi) {},
+            onServiceInitialised (instance, extraDefinition, extensionApi) {},
+            onServiceInstanceCreated (instance, extraDefinition, extensionApi) {},
+            onGetComplete (extraDefinition, extensionApi) {}
         });
     },
 
-    extensionApi: function(params) {
+    extensionApi (params) {
 
         params = params || {};
 
@@ -48,25 +49,25 @@ export const containerDoubles = {
             serviceId: params.serviceId,
             serviceDefinition: params.serviceDefinition,
             container: this.container(),
-            resolveArgs: function() {},
-            resolveArg: function() {}
+            resolveArgs () {},
+            resolveArg () {}
         });
 
     },
 
-    subscriptionManager: function() {
+    subscriptionManager () {
         return sinon.stub({
-            add: function(handler, methodName, callbacks) {},
-            start: function(target) {},
-            stop: function(target) {},
-            dispose: function(target) {},
+            add (handler, methodName, callbacks) {},
+            start (target) {},
+            stop (target) {},
+            dispose (target) {}
         });
     },
 
-    subscriptionManagerCallbacks: function() {
+    subscriptionManagerCallbacks () {
         return sinon.stub({
-            start: function(callback) {},
-            stop: function() {}
+            start (callback) {},
+            stop () {}
         });
     }
 
