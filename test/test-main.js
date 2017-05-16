@@ -8,4 +8,5 @@ require('chai').use(require('chai-as-promised'));
 require('chai').use(require('sinon-chai'));
 require('chai').use(require('./moreSinonChai').default);
 
-require('../src/container/ContainerSpec.js');
+require('../src/container/containerSpec.js');
+require('../src/container/extensionApiSpec.js');

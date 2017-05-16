@@ -3,31 +3,35 @@ import { _ } from '../globals';
 /**
  * This is passed to most of the extension functions
  */
-export default function ExtensionApi (container, serviceId, serviceDefinition, resolveArgs) {
+export default class ExtensionApi {
 
-    this.container = _.extend({}, container, {
-        chain: container.chain.concat(serviceId)
-    });
+    constructor (container, serviceId, serviceDefinition, resolveArgs) {
 
-    this.unsafeContainer = container;
+        this.container = _.extend({}, container, {
+            chain: container.chain.concat(serviceId)
+        });
 
-    this.serviceId = serviceId;
-    this.serviceDefinition = serviceDefinition;
+        this.unsafeContainer = container;
 
-    /**
-     * @param {Array<*>} argDefinitions
-     *
-     * @return {Array<Promise>}
-     */
-    this.resolveArgs = resolveArgs;
+        this.serviceId = serviceId;
+        this.serviceDefinition = serviceDefinition;
+
+        /**
+         * @param {Array<*>} argDefinitions
+         *
+         * @return {Array<Promise>}
+         */
+        this.resolveArgs = resolveArgs;
+
+    }
 
     /**
      * @param {*} argDefinition
      *
      * @return {Promise}
      */
-    this.resolveArg = function (argDefinition) {
+    resolveArg (argDefinition) {
         return this.resolveArgs([argDefinition])[0];
-    };
+    }
 
 }
