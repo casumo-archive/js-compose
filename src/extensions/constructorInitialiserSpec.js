@@ -3,7 +3,7 @@
 
 import { _ } from '../globals';
 import * as sinon from 'sinon';
-import { containerDoubles } from '../../test/doubles';
+import { addSpecsForCanInitialise } from '../../test/initialisers';
 import ConstructorInitialiser from './ConstructorInitialiser';
 
 describe('ConstructorInitialiser', () => {
@@ -14,33 +14,7 @@ describe('ConstructorInitialiser', () => {
         initialiser = new ConstructorInitialiser();
     });
 
-    describe('canInitialise', () => {
-
-        it('returns true when service definition init property is constructor', () => {
-
-            const extensionApi = containerDoubles.extensionApi({
-                serviceDefinition: {
-                    init: 'constructor'
-                }
-            });
-
-            initialiser.canInitialise(extensionApi).should.equal(true);
-
-        });
-
-        it('returns false when service definition init property is not constructor', () => {
-
-            const extensionApi = containerDoubles.extensionApi({
-                serviceDefinition: {
-                    init: 'not constructor'
-                }
-            });
-
-            initialiser.canInitialise(extensionApi).should.equal(false);
-
-        });
-
-    });
+    addSpecsForCanInitialise('constructor', () => initialiser);
 
     describe('initialise', () => {
 

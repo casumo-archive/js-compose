@@ -3,7 +3,7 @@
 
 import { _ } from '../globals';
 import * as sinon from 'sinon';
-import { containerDoubles } from '../../test/doubles';
+import { addSpecsForCanInitialise } from '../../test/initialisers';
 import FactoryInitialiser from './FactoryInitialiser';
 
 describe('FactoryInitialiser', () => {
@@ -14,33 +14,7 @@ describe('FactoryInitialiser', () => {
         initialiser = new FactoryInitialiser();
     });
 
-    describe('canInitialise', () => {
-
-        it('returns true when service definition init property is factory', () => {
-
-            const extensionApi = containerDoubles.extensionApi({
-                serviceDefinition: {
-                    init: 'factory'
-                }
-            });
-
-            initialiser.canInitialise(extensionApi).should.equal(true);
-
-        });
-
-        it('returns false when service definition init property is not factory', () => {
-
-            const extensionApi = containerDoubles.extensionApi({
-                serviceDefinition: {
-                    init: 'not factory'
-                }
-            });
-
-            initialiser.canInitialise(extensionApi).should.equal(false);
-
-        });
-
-    });
+    addSpecsForCanInitialise('factory', () => initialiser);
 
     describe('initialise', () => {
 
