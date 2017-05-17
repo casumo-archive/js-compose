@@ -7,21 +7,18 @@ export default class ConstructorInitialiser {
         return extensionApi.serviceDefinition.init === 'constructor';
     }
 
-    initialise (instanceCreatedCallback, loadedModule) {
+    initialise (instanceCreatedCallback, Constructor, ...args) {
 
-        const instance = new (Function.bind.apply(
-            loadedModule,
-            Array.prototype.slice.call(arguments, 1)
-        ))();
+        const instance = new Constructor(...args);
 
-        if (loadedModule.length !== (arguments.length - 2)) {
+        if (Constructor.length !== args.length) {
             // eslint-disable-next-line no-undef
             console.warn(
                 '👉 "%s" has been initialised with %d parameter(s). Constructor takes %d parameter(s).',
                 // eslint-disable-next-line no-underscore-dangle
-                loadedModule.prototype.__moduleId__,
-                arguments.length - 2,
-                loadedModule.length
+                Constructor.prototype.__moduleId__,
+                args.length,
+                Constructor.length
             );
         }
 

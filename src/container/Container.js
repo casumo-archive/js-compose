@@ -114,28 +114,26 @@ export default class Container {
 
             }).then((contents) => {
 
-                // eslint-disable-next-line prefer-spread
-                return initialiser.initialise.apply(
-                    initialiser,
-                    [
-                        function instanceCreatedCallback (instance) {
+                return initialiser.initialise(
+                    // eslint-disable-next-line prefer-arrow-callback
+                    function instanceCreatedCallback (instance) {
 
-                            mappedExtraHandlers.forEach((handler, extraIndex) => {
+                        mappedExtraHandlers.forEach((handler, extraIndex) => {
 
-                                if (handler.onServiceInstanceCreated) {
+                            if (handler.onServiceInstanceCreated) {
 
-                                    handler.onServiceInstanceCreated(
-                                        instance,
-                                        definition.extras[extraIndex],
-                                        extensionApi
-                                    );
+                                handler.onServiceInstanceCreated(
+                                    instance,
+                                    definition.extras[extraIndex],
+                                    extensionApi
+                                );
 
-                                }
+                            }
 
-                            });
+                        });
 
-                        }
-                    ].concat(contents)
+                    },
+                    ...contents
                 );
 
             }).then((instance) => {
