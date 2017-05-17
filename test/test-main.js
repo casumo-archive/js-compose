@@ -11,3 +11,4 @@ require('chai').use(require('./moreSinonChai').default);
 require('../src/container/containerSpec.js');
 require('../src/container/extensionApiSpec.js');
 require('../src/extensions/constructorInitialiserSpec.js');
+require('../src/extensions/factoryInitialiserSpec.js');
