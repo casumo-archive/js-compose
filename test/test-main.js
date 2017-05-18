@@ -12,4 +12,5 @@ require('../src/container/containerSpec.js');
 require('../src/container/extensionApiSpec.js');
 require('../src/extensions/constructorInitialiserSpec.js');
 require('../src/extensions/factoryInitialiserSpec.js');
+require('../src/extensions/partialInitialiserSpec.js');
 require('../src/extensions/returnInitialiserSpec.js');
