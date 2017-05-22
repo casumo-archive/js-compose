@@ -15,3 +15,4 @@ require('../src/extensions/factoryInitialiserSpec.js');
 require('../src/extensions/factoryServiceLoaderSpec.js');
 require('../src/extensions/partialInitialiserSpec.js');
 require('../src/extensions/returnInitialiserSpec.js');
+require('../src/extensions/structuredArgExtensionSpec.js');
