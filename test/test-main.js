@@ -15,6 +15,7 @@ require('../src/extensions/factoryInitialiserSpec.js');
 require('../src/extensions/factoryServiceLoaderSpec.js');
 require('../src/extensions/noCacheExtensionSpec.js');
 require('../src/extensions/partialInitialiserSpec.js');
+require('../src/extensions/pubSubExtensionSpec.js');
 require('../src/extensions/returnInitialiserSpec.js');
 require('../src/extensions/structuredArgExtensionSpec.js');
 require('../src/extensions/subscriptionManagerExtensionSpec.js');

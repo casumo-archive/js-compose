@@ -6,6 +6,10 @@ export const containerDoubles = {
     container () {
         return sinon.stub({
             cache: {},
+            config: {
+                services: {},
+                params: {}
+            },
             get (serviceId) {}
         });
     },
