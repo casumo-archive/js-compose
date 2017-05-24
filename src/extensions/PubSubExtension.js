@@ -12,20 +12,22 @@ export default class PubSubExtension {
 
     resolveArg (argDefinition, extensionApi) {
 
-        var container = extensionApi.container;
-        var eventName = argDefinition.substring(8);
+        const { container } = extensionApi;
+        const eventName = argDefinition.substring(8);
 
-        var dependeeIds = _.reduce(
+        const dependeeIds = _.reduce(
             container.config.services,
-            function(memo, definition, id) {
+            (memo, definition, id) => {
                 if (!definition.extras) {
                     return memo;
                 }
 
                 if (
-                    !_.find(definition.extras, function(extraDefinition) {
-                        return extraDefinition.subscribe &&
-                            (extraDefinition.subscribe === eventName || _.has(extraDefinition.subscribe, eventName));
+                    !_.find(definition.extras, (extraDefinition) => {
+                        return extraDefinition.subscribe && (
+                            extraDefinition.subscribe === eventName ||
+                            _.has(extraDefinition.subscribe, eventName)
+                        );
                     })
                 ) {
                     return memo;
@@ -36,14 +38,14 @@ export default class PubSubExtension {
             []
         );
 
-        return container.get(this.eventBusServiceId).then(function(eventBus) {
+        return container.get(this.eventBusServiceId).then((eventBus) => {
 
-            return function(payload) {
+            return (payload) => {
                 return Promise.all(
-                    _.map(dependeeIds, function(id) {
+                    _.map(dependeeIds, (id) => {
                         return container.get(id);
                     })
-                ).then(function() {
+                ).then(() => {
                     eventBus.trigger(argDefinition.substring(8), payload);
                 });
             };
@@ -59,27 +61,26 @@ export default class PubSubExtension {
         return Promise.all([
             extensionApi.resolveArg('subscriptionManager'),
             extensionApi.container.get(this.eventBusServiceId)
-        ]).then(function ([subscriptionManager, eventBus]) {
+        ]).then(([subscriptionManager, eventBus]) => {
             this.subscriptionManager = subscriptionManager;
             this.eventBus = eventBus;
-        }.bind(this));
+        });
 
     }
 
     createSubscriptions (instance, eventNamesToMethodNames) {
 
-        var subscriptionManager = this.subscriptionManager,
-            eventBus = this.eventBus;
+        const { eventBus, subscriptionManager } = this;
 
-        _.each(eventNamesToMethodNames, function(methodName, eventName) {
+        _.each(eventNamesToMethodNames, (methodName, eventName) => {
 
-            var subscription;
+            let subscription;
 
             subscriptionManager.add(instance, methodName, {
-                start: function(callback) {
+                start (callback) {
                     subscription = eventBus.on(eventName).then(callback);
                 },
-                stop: function() {
+                stop () {
                     subscription.off();
                 }
             });
@@ -90,7 +91,7 @@ export default class PubSubExtension {
 
     }
 
-    onServiceInstanceCreated (instance, extraDefinition, extensionApi) {
+    onServiceInstanceCreated (instance, extraDefinition) {
 
         if (!_.isString(extraDefinition.subscribe)) {
             this.createSubscriptions(instance, extraDefinition.subscribe);
@@ -98,9 +99,9 @@ export default class PubSubExtension {
 
     }
 
-    onServiceInitialised (instance, extraDefinition, extensionApi) {
+    onServiceInitialised (instance, extraDefinition) {
 
-        var eventNamesToMethodNames = {};
+        const eventNamesToMethodNames = {};
 
         // If it's a string then the instance is a handler function
         if (_.isString(extraDefinition.subscribe)) {
