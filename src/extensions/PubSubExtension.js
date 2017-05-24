@@ -59,7 +59,7 @@ export default class PubSubExtension {
         return Promise.all([
             extensionApi.resolveArg('subscriptionManager'),
             extensionApi.container.get(this.eventBusServiceId)
-        ]).spread(function(subscriptionManager, eventBus) {
+        ]).then(function ([subscriptionManager, eventBus]) {
             this.subscriptionManager = subscriptionManager;
             this.eventBus = eventBus;
         }.bind(this));

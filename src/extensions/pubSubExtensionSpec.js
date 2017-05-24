@@ -60,4 +60,48 @@ describe('PubSubExtension', () => {
 
     addSpecsForCanHandleExtraWithProperty('subscribe', () => extension);
 
+    describe('onServiceInstanceCreated', () => {
+
+        it('should add subscription to the subscription manager', () => {
+
+            const instance = {};
+            const extensionApi = containerDoubles.extensionApi();
+            const subscriptionManager = containerDoubles.subscriptionManager();
+            const eventBus = sinon.stub({
+                on () {}
+            });
+            const eventSubscription = sinon.stub({
+                then () {},
+                off () {}
+            });
+            const startCallback = sinon.spy();
+
+            eventSubscription.then.returns(eventSubscription);
+
+            extensionApi.resolveArg.withArgs('subscriptionManager').resolves(subscriptionManager);
+            extensionApi.container.get.withArgs('eventBus').resolves(eventBus);
+
+            eventBus.on.withArgs('fooEvent').returns(eventSubscription);
+
+            return extension.beforeServiceInitialised(null, extensionApi).then(() => {
+
+                extension.onServiceInstanceCreated(instance, {
+                    subscribe: {
+                        fooEvent: 'fooMethod'
+                    }
+                });
+
+                subscriptionManager.add.should.have.been.calledWith(instance, 'fooMethod');
+                subscriptionManager.add.args[0][2].start(startCallback);
+                eventSubscription.then.should.have.been.calledWith(startCallback);
+
+                subscriptionManager.add.args[0][2].stop();
+                eventSubscription.off.should.have.been.called;
+
+            });
+
+        });
+
+    });
+
 });
