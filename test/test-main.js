@@ -14,6 +14,7 @@ require('../src/extensions/constructorInitialiserSpec.js');
 require('../src/extensions/factoryInitialiserSpec.js');
 require('../src/extensions/factoryServiceLoaderSpec.js');
 require('../src/extensions/noCacheExtensionSpec.js');
+require('../src/extensions/paramArgResolverSpec.js');
 require('../src/extensions/partialInitialiserSpec.js');
 require('../src/extensions/pubSubExtensionSpec.js');
 require('../src/extensions/returnInitialiserSpec.js');
