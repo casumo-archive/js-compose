@@ -18,5 +18,6 @@ require('../src/extensions/paramArgResolverSpec.js');
 require('../src/extensions/partialInitialiserSpec.js');
 require('../src/extensions/pubSubExtensionSpec.js');
 require('../src/extensions/returnInitialiserSpec.js');
+require('../src/extensions/serviceArgResolverSpec.js');
 require('../src/extensions/structuredArgExtensionSpec.js');
 require('../src/extensions/subscriptionManagerExtensionSpec.js');
