@@ -4,7 +4,7 @@
   "description": "Dependency injection container with plain object dsl",
   "main": "index.js",
   "scripts": {
-    "test": "mocha-webpack ./test/test-main.js"
+    "test": "mocha-webpack --webpack-config webpack.config-test.js ./test/test-main.js"
   },
   "author": "Casumo <frontend@casumo.com> (https://www.casumo.com/)",
   "license": "MIT",
@@ -13,6 +13,7 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "eslint-config-casumo": "^1.3.0",
+    "glob": "^7.1.2",
     "lodash": "^4.17.4",
     "mocha": "^3.3.0",
     "mocha-webpack": "^0.7.0",
