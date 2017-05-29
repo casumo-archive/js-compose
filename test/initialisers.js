@@ -6,7 +6,7 @@ import { containerDoubles } from './doubles';
 /**
  * Use this for initialiser extensions which support a specific init value.
  */
-export function addSpecsForCanInitialise (initValue, initialiserFactory) {
+export function addSpecsForCanInitialiseIfInitEquals (initValue, initialiserFactory) {
 
     describe('canInitialise', () => {
 

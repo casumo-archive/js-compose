@@ -5,6 +5,7 @@ import { _, Promise } from '../globals';
 import * as sinon from 'sinon';
 import { containerDoubles } from '../../test/doubles';
 import { addSpecsForCanLoadModule } from '../../test/moduleLoaders';
+import { addSpecsForCanInitialiseWithProperty } from '../../test/initialisers';
 import StructuredArgExtension from './StructuredArgExtension';
 
 describe('StructuredArgExtension', () => {
@@ -67,32 +68,7 @@ describe('StructuredArgExtension', () => {
 
     });
 
-    describe('canInitialise', () => {
-
-        it('should return true if service definition has structuredArg property', () => {
-
-            const extensionApi = containerDoubles.extensionApi({
-                serviceDefinition: {
-                    structuredArg: {}
-                }
-            });
-
-            extension.canInitialise(extensionApi).should.equal(true);
-
-        });
-
-        it('should return false if service definition does not have structuredArg property', () => {
-
-            const extensionApi = containerDoubles.extensionApi({
-                serviceDefinition: {
-                }
-            });
-
-            extension.canInitialise(extensionApi).should.equal(false);
-
-        });
-
-    });
+    addSpecsForCanInitialiseWithProperty('structuredArg', () => extension);
 
     describe('initialise', () => {
 

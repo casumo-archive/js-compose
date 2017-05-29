@@ -3,7 +3,7 @@
 
 import { _ } from '../globals';
 import * as sinon from 'sinon';
-import { addSpecsForCanInitialise } from '../../test/initialisers';
+import { addSpecsForCanInitialiseIfInitEquals } from '../../test/initialisers';
 import PartialInitialiser from './PartialInitialiser';
 
 describe('PartialInitialiser', () => {
@@ -14,7 +14,7 @@ describe('PartialInitialiser', () => {
         initialiser = new PartialInitialiser();
     });
 
-    addSpecsForCanInitialise('partial', () => initialiser);
+    addSpecsForCanInitialiseIfInitEquals('partial', () => initialiser);
 
     describe('initialise', () => {
 

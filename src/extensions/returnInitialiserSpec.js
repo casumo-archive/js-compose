@@ -3,7 +3,7 @@
 
 import { _ } from '../globals';
 import * as sinon from 'sinon';
-import { addSpecsForCanInitialise } from '../../test/initialisers';
+import { addSpecsForCanInitialiseIfInitEquals } from '../../test/initialisers';
 import ReturnInitialiser from './ReturnInitialiser';
 
 describe('ReturnInitialiser', () => {
@@ -14,7 +14,7 @@ describe('ReturnInitialiser', () => {
         initialiser = new ReturnInitialiser();
     });
 
-    addSpecsForCanInitialise('return', () => initialiser);
+    addSpecsForCanInitialiseIfInitEquals('return', () => initialiser);
 
     describe('initialise', () => {
 

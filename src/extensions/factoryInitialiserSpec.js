@@ -3,7 +3,7 @@
 
 import { _ } from '../globals';
 import * as sinon from 'sinon';
-import { addSpecsForCanInitialise } from '../../test/initialisers';
+import { addSpecsForCanInitialiseIfInitEquals } from '../../test/initialisers';
 import FactoryInitialiser from './FactoryInitialiser';
 
 describe('FactoryInitialiser', () => {
@@ -14,7 +14,7 @@ describe('FactoryInitialiser', () => {
         initialiser = new FactoryInitialiser();
     });
 
-    addSpecsForCanInitialise('factory', () => initialiser);
+    addSpecsForCanInitialiseIfInitEquals('factory', () => initialiser);
 
     describe('initialise', () => {
 
