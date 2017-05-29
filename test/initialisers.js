@@ -37,3 +37,36 @@ export function addSpecsForCanInitialise (initValue, initialiserFactory) {
     });
 
 }
+
+/**
+ * Use this for initialisers which expect a certain property on the service definition
+ */
+export function addSpecsForCanInitialiseWithProperty (property, getTestSubject) {
+
+    describe('canInitialise', () => {
+
+        it(`returns true when extra definition has property ${property}`, () => {
+
+            const extensionApi = containerDoubles.extensionApi({
+                serviceDefinition: {
+                    [property]: 'foo'
+                }
+            });
+
+            getTestSubject().canInitialise(extensionApi).should.equal(true);
+
+        });
+
+        it(`returns false when extra definition does not have property ${property}`, () => {
+
+            const extensionApi = containerDoubles.extensionApi({
+                serviceDefinition: {}
+            });
+
+            getTestSubject().canInitialise(extensionApi).should.equal(false);
+
+        });
+
+    });
+
+}
