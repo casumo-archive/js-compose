@@ -1,14 +1,15 @@
 const glob = require('glob');
+const moreSinonChai = require('more-sinon-chai');
+const _ = require('lodash');
 
-require('../src/globals.js').configure(
-    require('lodash'),
-    Promise
-);
+require('../src/globals.js').configure(_, Promise);
+
+moreSinonChai.moreSinon(_, Promise, require('sinon'));
 
 require('chai').should();
 require('chai').use(require('chai-as-promised'));
 require('chai').use(require('sinon-chai'));
-require('chai').use(require('./moreSinonChai').default);
+require('chai').use(moreSinonChai.moreChai(_, Promise));
 
 glob.sync('**/*Spec.js').forEach((filePath) => {
     // We trim some information from the filePath as we need to give webpack as much compile time
