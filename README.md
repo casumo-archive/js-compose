@@ -19,3 +19,48 @@ Most of the work of a js-compose container is done by extensions. Some terminolo
 **Initialisers** are responsible for creating the service from the base provided by Loaders, and the dependencies provided by Arg Resolvers.
 
 **Extra Handlers** add extra functionality by hooking into lifecycle hooks of the service provided by the container. They facilitate the use of aspect oriented programming patterns.
+
+
+### extension.loadModule(extensionApi)
+
+The first extension where `canLoadModule(extensionApi) === true` will be used as the Loader for the service. Returns a `Promise` of the module.
+
+
+### extension.resolveArg(argDefinition, extensionApi)
+
+The service definition can optionally include an `args` property as an array. Each item will be passed to the first extension where `canResolveArg(argDefinition) === true`. Returns a `Promise` for the resolved arg.
+
+
+### extension.beforeServiceInitialised(extraDefinition, extensionApi)
+
+The service definition can optionally include an `extras` property as an array. Each item will be passed to the first extension where `canHandleExtra(extraDefinition, extensionApi) === true` for all lifecycle hooks.
+
+The `beforeServiceInitialised` hook is called after loading the module and resolving args, but before initialising the service. It can optionally return a `Promise` if asynchronous work is necessary.
+
+
+### extension.initialise(instanceCreatedCallback, loadedModule, ...resolvedArgs)
+
+The first extension where `canInitialise(extensionApi) === true` will be used as the Initialiser for the service. Returns the complete service, as it will be returned from the container.
+
+The `instanceCreatedCallback` should be called with any instance created by this service. If the Initialiser returns a factory capable of creating multiple instances, this can be called multiple times. If the Initialiser is not responsible for creating new instances, this callback can be skipped.
+
+
+### extension.onServiceInstanceCreated(instance, extraDefinition, extensionApi)
+
+The service definition can optionally include an `extras` property as an array. Each item will be passed to the first extension where `canHandleExtra(extraDefinition, extensionApi) === true` for all lifecycle hooks.
+
+The `onServiceInstanceCreated` hook is called whenever an instance of a service is created. Any return value is ignored. It is useful for aspect-oriented programming patterns.
+
+
+### extension.onServiceInitialised(initialisedService, extraDefinition, extensionApi)
+
+The service definition can optionally include an `extras` property as an array. Each item will be passed to the first extension where `canHandleExtra(extraDefinition, extensionApi) === true` for all lifecycle hooks.
+
+The `onServiceInitialised` hook is called after the service is initialised. It is useful for extending services which don't create instances, or where asynchronous work is needed, as it can optionally return a `Promise`.
+
+
+### extension.onGetComplete(extraDefinition, extensionApi)
+
+The service definition can optionally include an `extras` property as an array. Each item will be passed to the first extension where `canHandleExtra(extraDefinition, extensionApi) === true` for all lifecycle hooks.
+
+The `onGetComplete` hook is called at the end of every call to `container.get()`, immediately before returning, even if the service already existed in the cache. Any return value is ignored.
