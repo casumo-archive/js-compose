@@ -64,3 +64,30 @@ The `onServiceInitialised` hook is called after the service is initialised. It i
 The service definition can optionally include an `extras` property as an array. Each item will be passed to the first extension where `canHandleExtra(extraDefinition, extensionApi) === true` for all lifecycle hooks.
 
 The `onGetComplete` hook is called at the end of every call to `container.get()`, immediately before returning, even if the service already existed in the cache. Any return value is ignored.
+
+
+## API
+
+### new Container(extensions: Array<Extension>, config: Object)
+
+A Container instance is constructed with all extensions and complete configuration. The order of extensions is relevant when deciding which to use for steps detailed in the Architecture section above.
+
+
+### container.get(id: String): Promise<Any>
+
+Returns a promise for the service with the given id.
+
+
+### container.cache: Object
+
+The cache for the container is a dictionary of service name to `Promise`. Unstable API.
+
+
+### container.config: Object
+
+The config given when constructing this container instance. Unstable API.
+
+
+### Container.defaultInitialiser(extension: Extension): Extension
+
+A static utility function exposed on the Container constructor. Using this will make an extension always return true for `canInitialise` checks, meaning there is no need to include the `init` param in the service definition, making it the "default". Only one extension should be added using this, and it should be at the bottom of the extensions list.
