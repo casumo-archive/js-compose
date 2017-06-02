@@ -92,3 +92,28 @@ The config given when constructing this container instance. Unstable API.
 ### Container.defaultInitialiser(extension: Extension): Extension
 
 A static utility function exposed on the Container constructor. Using this will make an extension always return true for `canInitialise` checks, meaning there is no need to include the `init` param in the service definition, making it the "default". Only one extension should be added using this, and it should be at the bottom of the extensions list.
+
+
+### extensionAPI.container: Container
+
+An instance of the container. Can be used to get services inside extensions, access the cache, or the full configuration.
+
+
+### extensionAPI.unsafeContainer: Container
+
+An instance of the container without circular dependency checks. Use with caution!
+
+
+### extensionAPI.serviceId: String
+
+The id of the service being loaded, as defined as the key in the services configuration object.
+
+
+### extensionAPI.serviceDefinition: Object
+
+The definition of the service being loaded, as defined as the value in the services configuration object.
+
+
+### extensionAPI.resolveArgs(args: Array<Any>): Array<Promise<Any>>
+
+Use this to resolve args in an extension.
