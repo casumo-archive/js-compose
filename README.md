@@ -117,3 +117,70 @@ The definition of the service being loaded, as defined as the value in the servi
 ### extensionAPI.resolveArgs(args: Array<Any>): Array<Promise<Any>>
 
 Use this to resolve args in an extension.
+
+
+## Composition Configuration
+
+The second parameter to the `Container` constructor is a composition configuration. This is where you define your application using the DSL provided by extensions. Below is the built-in structure of this configuration. On its own it's not very useful. Extensions are required to support additional structure and do the heavy lifting.
+
+```js
+return {
+    services: {
+
+        // serviceId: serviceDefinition
+        exampleService: {
+
+            // Both args and extras are optional, and items in the lists can be
+            // any type, but there must be an Extension capable of handling
+            // each of them or the Promise for the service will reject.
+            args: [],
+            extras: []
+        }
+
+    }
+};
+```
+
+The following extensions can be found in `src/extensions`.
+
+
+### ??? Loader
+
+@todo Add a general purpose loader
+
+
+### Basic Initialisers
+
+The ConstructorInitialiser, FactoryInitialiser and ReturnInitialiser add support for the `init` property in the service definition:
+
+```js
+return {
+    services: {
+        exampleService: {
+            init: 'constructor' || 'factory' || 'return'
+        }
+    }
+};
+```
+
+**ConstructorInitialiser** will call new on the loaded module with any resolved args.
+
+**FactoryInitialiser** will invoke the loaded module with any resolved args.
+
+**ReturnInitialiser** will ignore any args and return the loaded module as-is.
+
+
+### Partial Initialiser
+
+PartialInitialiser will be used if the `init` property equals "partial". Partial services will partially apply any resolved args to the loaded module. It will preserve any constructor prototype semantics from the original function.
+
+```js
+return {
+    services: {
+        exampleService: {
+            init: 'partial',
+            args: [/* ... */]
+        }
+    }
+};
+```
