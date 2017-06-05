@@ -1226,9 +1226,9 @@ mocha@^3.3.0:
     mkdirp "0.5.1"
     supports-color "3.1.2"
 
-more-sinon-chai@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/more-sinon-chai/-/more-sinon-chai-1.0.0.tgz#c46cb1b91e660a2a45273be244f9370dc5c83638"
+more-sinon-chai@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/more-sinon-chai/-/more-sinon-chai-1.1.0.tgz#bf9e77c8f5c2909307ff6357b4be6d50eb832e22"
 
 ms@0.7.2:
   version "0.7.2"

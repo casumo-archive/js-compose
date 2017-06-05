@@ -8,13 +8,13 @@ export default class DeferredArgResolver {
 
     resolveArg (argDefinition, extensionApi) {
 
-        return new Promise((resolve, reject) => {
+        return _.constant(new Promise((resolve, reject) => {
 
             _.defer(() => {
                 extensionApi.resolveArg(argDefinition.substring(6)).then(resolve, reject);
             });
 
-        });
+        }));
 
     }
 

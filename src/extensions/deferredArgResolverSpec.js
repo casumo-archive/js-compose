@@ -17,18 +17,29 @@ describe('DeferredArgResolver', () => {
 
     describe('resolveArg', () => {
 
-        it('should return a promise for the deferred arg requested in a new stack frame', () => {
+        it('should return a function which returns a promise for the deferred arg', () => {
 
             const extensionApi = containerDoubles.extensionApi();
             const instance = {};
 
             extensionApi.resolveArg.withArgs('foo').resolves(instance);
 
-            const result = argResolver.resolveArg('defer:foo', extensionApi);
-
-            extensionApi.resolveArg.should.not.have.been.called;
+            const deferredResult = argResolver.resolveArg('defer:foo', extensionApi);
+            const result = deferredResult();
 
             return result.should.eventually.equal(instance);
+
+        });
+
+        it('should eagerly resolve the deferred service without calling the resolved function', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            extensionApi.resolveArg.withArgs('foo').resolves({});
+
+            argResolver.resolveArg('defer:foo', extensionApi);
+
+            return extensionApi.resolveArg.withArgs('foo').should.eventuallyBeCalled();
 
         });
 
