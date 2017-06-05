@@ -184,3 +184,45 @@ return {
     }
 };
 ```
+
+
+### Service Arg Resolver
+
+Use this to inject other services as dependencies by using the `@` prefix.
+
+Also supports dot notation to access nested properties of the dependee service, although this is not considered to be best practice.
+
+```js
+return {
+    services: {
+        exampleService: {
+            args: ['@dependeeService']
+        },
+        dependeeService: {
+            // ...
+        }
+    }
+};
+```
+
+
+### Param Arg Resolver
+
+Use this to inject arbitrary parameters as dependencies by using the `%` prefix. Parameters are not defined where they are injected as it makes static validation of container configuration impossible.
+
+Also supports dot notation to access nested values of the params configuration object.
+
+```js
+return {
+
+    params: {
+        exampleParam: 'foo'
+    },
+
+    services: {
+        exampleService: {
+            args: ['%exampleParam']
+        }
+    }
+};
+```
