@@ -170,7 +170,7 @@ return {
 **ReturnInitialiser** will ignore any args and return the loaded module as-is.
 
 
-### Partial Initialiser
+### PartialInitialiser
 
 PartialInitialiser will be used if the `init` property equals "partial". Partial services will partially apply any resolved args to the loaded module. It will preserve any constructor prototype semantics from the original function.
 
@@ -186,7 +186,7 @@ return {
 ```
 
 
-### Service Arg Resolver
+### ServiceArgResolver
 
 Use this to inject other services as dependencies by using the `@` prefix.
 
@@ -206,7 +206,7 @@ return {
 ```
 
 
-### Param Arg Resolver
+### ParamArgResolver
 
 Use this to inject arbitrary parameters as dependencies by using the `%` prefix. Parameters are not defined where they are injected as it makes static validation of container configuration impossible.
 
@@ -225,4 +225,38 @@ return {
         }
     }
 };
+```
+
+
+### DeferredArgResolver
+
+Use this to resolve circular dependencies between services. Note, circular dependencies are often a sign of bad design, in particular leaking abstraction layers.
+
+```js
+return {
+    services: {
+        exampleService: {
+            args: ['defer:@circularDependency']
+        },
+        circularDependency: {
+            args: ['@exampleService']
+        }
+    }
+};
+```
+
+```js
+class ExampleService {
+
+    constructor (circularDependency) {
+        this.circularDependency = circularDependency;
+    }
+
+    doSomething () {
+        return this.circularDependency().then((circularDependency) => {
+            return circularDependency.something();
+        });
+    }
+
+}
 ```
