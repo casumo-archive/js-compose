@@ -230,7 +230,7 @@ return {
 
 ### DeferredArgResolver
 
-Use this to resolve circular dependencies between services. Note, circular dependencies are often a sign of bad design, in particular leaking abstraction layers.
+Use this to resolve circular dependencies between services by using the `defer:` prefix. Note, circular dependencies are often a sign of bad design, in particular leaking abstraction layers.
 
 ```js
 return {
@@ -259,4 +259,25 @@ class ExampleService {
     }
 
 }
+```
+
+
+### CommonArgResolver
+
+Provides a number of args that are useful in many applications. All available args are added to the service below. They are hopefully self-explanatory.
+
+```js
+return {
+    services: {
+        exampleService: {
+            args: [
+                'container',
+                'emptyString',
+                'true',
+                'false',
+                'noop'
+            ]
+        }
+    }
+};
 ```
