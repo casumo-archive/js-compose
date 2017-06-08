@@ -76,7 +76,7 @@ A Container instance is constructed with all extensions and complete configurati
 
 ### container.get(id: String): Promise<Any>
 
-Returns a promise for the service with the given id.
+Returns a promise for the service with the given id. Subsequent calls for the same id will return the same promise unless affected by an extension.
 
 
 ### container.cache: Object
@@ -293,6 +293,41 @@ return {
                 'true',
                 'false',
                 'noop'
+            ]
+        }
+    }
+};
+```
+
+
+### AliasExtension
+
+Use this to give an alias to a resolved arg so that it can be used as a service.
+
+```js
+return {
+    services: {
+        exampleService: {
+            // See [ServiceArgResolver](#ServiceArgResolver)
+            alias: '@otherService'
+        },
+        otherService: {
+        }
+    }
+};
+```
+
+
+### NoCacheExtension
+
+Use this to return a new, unique instance of this service every time it is got from the container.
+
+```js
+return {
+    services: {
+        exampleService: {
+            extras: [
+                'no-cache'
             ]
         }
     }
