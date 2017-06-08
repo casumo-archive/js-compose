@@ -149,6 +149,23 @@ The following extensions can be found in `src/extensions`.
 @todo Add a general purpose loader
 
 
+### FactoryServiceLoader
+
+Use this to use another service as a factory, by providing the name of the service as the `factoryService` key in the definition. Also supports dot notation to use a property of the service. Any property that is a function will be returned with its context bound to its object.
+
+```js
+return {
+    services: {
+        exampleService: {
+            factoryService: 'exampleFactory.createService'
+        },
+        exampleFactory: {
+        }
+    }
+};
+```
+
+
 ### Basic Initialisers
 
 The ConstructorInitialiser, FactoryInitialiser and ReturnInitialiser add support for the `init` property in the service definition:
