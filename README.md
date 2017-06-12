@@ -333,3 +333,32 @@ return {
     }
 };
 ```
+
+
+### StructuredArgExtension
+
+Use this to create a structured tree of dependencies as a service by using the `structuredArg` key in the service defintion. It will recursively resolve all args at the leaves of the tree before resolving the service.
+
+```js
+return {
+    services: {
+        exampleTreeService: {
+            structuredArg: {
+                fooService: '@foo',
+                barServices: ['@bar1', '@bar2']
+            }
+        },
+        foo: { /* ... */ },
+        bar1: { /* ... */ }
+        bar2: { /* ... */ }
+    }
+};
+```
+
+```js
+const example = await container.get('exampleTreeService');
+
+(example.fooService instanceof Foo) === true
+(example.barServices[0] instanceof Bar) === true
+(example.barServices[1] instanceof Bar) === true
+```
