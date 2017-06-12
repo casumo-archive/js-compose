@@ -337,7 +337,7 @@ return {
 
 ### StructuredArgExtension
 
-Use this to create a structured tree of dependencies as a service by using the `structuredArg` key in the service defintion. It will recursively resolve all args at the leaves of the tree before resolving the service.
+Use this to create a structured tree of dependencies as a service by using the `structuredArg` key in the service definition. It will recursively resolve all args at the leaves of the tree before resolving the service.
 
 ```js
 return {
@@ -361,4 +361,58 @@ const example = await container.get('exampleTreeService');
 (example.fooService instanceof Foo) === true
 (example.barServices[0] instanceof Bar) === true
 (example.barServices[1] instanceof Bar) === true
+```
+
+
+### SubscriptionManagerExtension
+
+This extension is a supporting module for extensions which manage callback subscriptions. An instance of this extension can be passed in the constructor of others to manage subscriptions. When added to the container it exposes the `subscriptionManager` service so that services can manage subscriptions too.
+
+The following sections will explain the API for the SubscriptionManagerExtension.
+
+
+#### subscriptionManager.add()
+
+Use this to make the subscription manager responsible for a subscription. It won't start the subscription. Subscription handlers can either be a method on an object, or a function. Below are the interfaces:
+
+```js
+// Subscribe to a method on a handler object
+{
+    add (handlerObject: Object, handlerMethod: String, callbacks: Object) {}
+}
+
+// Subscribe to a handler function directly
+{
+    add (handlerFunction: Function, skipped: Null, callbacks: Object) {}
+}
+```
+
+The callbacks object is implemented by the extension that is creating the subscriptions. Below is an example of how a timer extension might implement the callbacks object to invoke managed handlers every second:
+
+```js
+const callbacks = {
+
+    start (callback) {
+        this.timer = window.setInterval(() => callback(Date.now()), 1000);
+    }
+
+    stop () {
+        window.clearInterval(this.timer);
+    }
+
+};
+```
+
+The extension would need to register subscriptions with the subscription manager at some point during the container lifecycle for a service. Extra Handlers can interact with services as they are composed. Either of the interfaces described above can be used to register the subscription:
+
+```js
+// Invoke onInterval with timestamp on the service every second
+subscriptionManager.add(service, 'onInterval', callbacks);
+
+// Log the timestamp and the service every second
+subscriptionManager.add(
+    (timestamp) => console.log(timestamp, service),
+    null,
+    callbacks
+);
 ```
