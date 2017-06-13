@@ -2,9 +2,9 @@
 
 A dependency injection container library using a plain javascript object DSL for describing the dependencies and their configuration.
 
- - [Architecture](#Architecture)
- - [API](#API)
- - [Composition Configuration](#Composition%20Configuration)
+ - [Architecture](#architecture)
+ - [API](#api)
+ - [Composition Configuration](#composition-configuration)
 
 
 ## Architecture
