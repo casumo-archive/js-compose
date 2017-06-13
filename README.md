@@ -364,6 +364,78 @@ const example = await container.get('exampleTreeService');
 ```
 
 
+### PubSubExtension
+
+Use this extension as an event bus for your application. It makes it possible to configure subscriptions to events in the container configuration, and to easily publish events from services.
+
+#### Subscribe
+
+Event subscriptions should be configured by an object with the `subscribe` key added to the extras definition. Two styles are supported.
+
+The first is an object with the event name as the key, and the handler method name as the value:
+
+```js
+return {
+    services: {
+        exampleSubscriber: {
+            extras: [
+                {
+                    subscribe: {
+                        onExampleEvent: 'handleExampleEvent'
+                    }
+                }
+            ]
+        }
+    }
+};
+```
+
+The second is string matching the event name. The service itself will be used as the handler, and should therefore be invokable.
+
+```js
+return {
+    services: {
+        exampleSubscriber: {
+            extras: [
+                {
+                    subscribe: 'onExampleEvent'
+                }
+            ]
+        }
+    }
+};
+```
+
+#### Publish
+
+Publishing events is achieved by configuring an arg with the prefix `publish:`:
+
+```js
+return {
+    services: {
+        examplePublisher: {
+            args: ['publish:exampleEvent']
+        }
+    }
+};
+```
+
+This will resolve to a function which when called will publish the event to all subscribers. Any subscribers configured in the container using the approach above will be initialised before the event is published down the event bus. This is a great way for events to lazily initialise parts of your application.
+
+```js
+class ExamplePublisher {
+
+    constructor (publishExampleEvent) {
+
+        publishExampleEvent(this).then(() => {
+            // Subscribers have been loaded and notified with this instance as a payload
+        });
+
+    }
+}
+```
+
+
 ### SubscriptionManagerExtension
 
 This extension is a supporting module for extensions which manage callback subscriptions. An instance of this extension can be passed in the constructor of others to manage subscriptions. When added to the container it exposes the `subscriptionManager` service so that services can manage subscriptions too.
