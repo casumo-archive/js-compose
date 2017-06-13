@@ -383,7 +383,7 @@ Use this to make the subscription manager responsible for a subscription. It won
 
 // Subscribe to a handler function directly
 {
-    add (handlerFunction: Function, skipped: Null, callbacks: Object) {}
+    add (handlerFunction: Function, ignored: Null, callbacks: Object) {}
 }
 ```
 
@@ -416,3 +416,57 @@ subscriptionManager.add(
     callbacks
 );
 ```
+
+
+#### subscriptionManager.start()
+
+Use this to start subscriptions managed by this extension. There are three ways to do so:
+
+```js
+// Start a registered subscription for a single handler function
+function exampleHandlerFunction () {}
+
+subscriptionManager.add(exampleHandlerFunction, null, callbacks);
+
+// Invoke start with a registered handler function
+subscriptionManager.start(exampleHandlerFunction);
+```
+
+```js
+// Start a registered subscription for a handler method
+const exampleHandlerObject = {
+    handlerMethod () {}
+};
+
+subscriptionManager.add(exampleHandlerObject, 'handlerMethod', callbacks);
+
+// Invoke start with a registered handler object and method name string
+subscriptionManager.start(exampleHandlerObject, 'handlerMethod');
+
+// Or alternatively invoke start with the method function
+subscriptionManager.start(exampleHandlerObject.handlerMethod);
+```
+
+```js
+// Start all registered subscriptions for a handler object
+const exampleHandlerObject = {
+    handlerMethod01 () {},
+    handlerMethod02 () {}
+};
+
+subscriptionManager.add(exampleHandlerObject, 'handlerMethod01', callbacks);
+subscriptionManager.add(exampleHandlerObject, 'handlerMethod02', callbacks);
+
+// Invoke start with a registered handler object only
+subscriptionManager.start(exampleHandlerObject);
+```
+
+
+#### subscriptionManager.stop()
+
+Use this to stop subscriptions managed by this extension. Supports the same three interfaces as [subscriptionManager.start()](#subscriptionManager.start()).
+
+
+#### subscriptionManager.dispose()
+
+Use this to stop and unregister subscriptions managed by this extension. Any future call to start will have no effect. Supports the same three interfaces as [subscriptionManager.start()](#subscriptionManager.start()).
