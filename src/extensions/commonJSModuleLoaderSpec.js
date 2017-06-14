@@ -23,7 +23,7 @@ describe('CommonJSModuleLoader', () => {
 
             const extensionApi = containerDoubles.extensionApi({
                 serviceDefinition: {
-                    commonJS: './extensions/CommonJSModuleLoader'
+                    commonJS: 'extensions/CommonJSModuleLoader'
                 }
             });
 

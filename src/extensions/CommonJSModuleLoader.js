@@ -14,7 +14,9 @@ export default class CommonJSModuleLoader {
     }
 
     loadModule (extensionApi) {
-        return Promise.resolve(this.require(extensionApi.serviceDefinition.commonJS));
+        return Promise.resolve(
+            this.require(`./${extensionApi.serviceDefinition.commonJS}`)
+        );
     }
 
 }
