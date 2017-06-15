@@ -148,9 +148,32 @@ return {
 The following extensions can be found in `src/extensions`.
 
 
-### ??? Loader
+### CommonJSModuleLoader
 
-@todo Add a general purpose loader
+Use this to load CommonJS modules by providing the module path as the `commonJS` key in the definition. The module path is relative to the require function passed to the constructor of the extension. Also supports dot notation to load a specific export of the module.
+
+```js
+// File src/js/main.js
+new Container(
+    [
+        new CommonJSModuleLoader(require)
+    ],
+    {
+        services: {
+            exampleService: {
+                // Will return module at src/js/path/to/module.js
+                commonJS: 'path/to/module'
+            },
+            anotherService: {
+                // Will return export foo from module at src/js/path/to/module.js
+                commonJS: 'path/to/module.foo'
+            }
+        }
+    }
+);
+```
+
+If using webpack see the `require.context` function for passing a require context to the constructor.
 
 
 ### FactoryServiceLoader
