@@ -33,6 +33,20 @@ describe('CommonJSModuleLoader', () => {
 
         });
 
+        it('should support dot notation to return a specific export from the module', () => {
+
+            const extensionApi = containerDoubles.extensionApi({
+                serviceDefinition: {
+                    commonJS: 'extensions/CommonJSModuleLoader.default'
+                }
+            });
+
+            const expected = require('./CommonJSModuleLoader').default;
+
+            return loader.loadModule(extensionApi).should.eventually.equal(expected);
+
+        });
+
     });
 
 });
