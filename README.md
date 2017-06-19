@@ -176,6 +176,27 @@ new Container(
 If using webpack see the `require.context` function for passing a require context to the constructor.
 
 
+### ES6ModuleLoaderDecorator
+
+Use this to add support for transpiled ES6 modules to other module loaders. Using this will implicitly return the `default` export of a module, as would happen with an ES6 import statement.
+
+```js
+// File src/js/main.js
+new Container(
+    [
+        new ES6ModuleLoaderDecorator(
+            new CommonJSModuleLoader(require)
+        )
+    ],
+    {
+        services: {
+            // ...
+        }
+    }
+);
+```
+
+
 ### FactoryServiceLoader
 
 Use this to use another service as a factory, by providing the name of the service as the `factoryService` key in the definition. Also supports dot notation to use a property of the service. Any property that is a function will be returned with its context bound to its object.
