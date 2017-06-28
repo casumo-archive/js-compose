@@ -174,6 +174,17 @@ export default class Container {
         return output;
     }
 
+    /**
+     * @return {Promise<Array<String>>} - A list of lint errors
+     */
+    lint () {
+
+        return Promise.resolve(_.map(this.config.services, (serviceDefinition, serviceId) => {
+            return `Missing module loader for ${serviceId}`;
+        }));
+
+    }
+
 }
 
 /**

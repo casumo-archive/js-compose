@@ -719,4 +719,27 @@ describe('Container', () => {
 
     });
 
+    describe('lint', () => {
+
+        it('should resolve with an empty array for a valid container', () => {
+
+            const container = new Container([], { services: {} });
+
+            return container.lint().should.eventually.deep.equal([]);
+
+        });
+
+        it('should resolve with errors for services with missing module loaders', () => {
+
+            const container = new Container([], definition);
+
+            return container.lint().then((errors) => {
+                errors.length.should.equal(1);
+                errors[0].should.contain('exampleService');
+            });
+
+        });
+
+    });
+
 });
