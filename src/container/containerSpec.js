@@ -748,9 +748,24 @@ describe('Container', () => {
 
         it('should resolve with errors for services with missing module loaders', () => {
 
-            const container = new Container([moduleLoader], definition);
+            const container = new Container([moduleLoader, initialiser], definition);
 
             moduleLoader.canLoadModule
+                .withArgs(sinon.match(extensionApiForService('invalidService')))
+                .returns(false);
+
+            return container.lint().then((errors) => {
+                errors.length.should.equal(1);
+                errors[0].should.contain('invalidService');
+            });
+
+        });
+
+        it('should resolve with errors for services with missing initialisers', () => {
+
+            const container = new Container([moduleLoader, initialiser], definition);
+
+            initialiser.canInitialise
                 .withArgs(sinon.match(extensionApiForService('invalidService')))
                 .returns(false);
 
