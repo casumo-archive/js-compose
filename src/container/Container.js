@@ -179,9 +179,19 @@ export default class Container {
      */
     lint () {
 
-        return Promise.resolve(_.map(this.config.services, (serviceDefinition, serviceId) => {
-            return `Missing module loader for ${serviceId}`;
-        }));
+        return Promise.resolve(_.compact(_.map(this.config.services, (serviceDefinition, serviceId) => {
+
+            const extensionApi = new ExtensionApi(this, serviceId, serviceDefinition, _.noop);
+
+            const moduleLoader = _.find(this.moduleLoaders, (moduleLoader) => {
+                return moduleLoader.canLoadModule(extensionApi);
+            });
+
+            if (!moduleLoader) {
+                return `Missing module loader for ${serviceId}`;
+            }
+
+        })));
 
     }
 

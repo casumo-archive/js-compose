@@ -721,6 +721,23 @@ describe('Container', () => {
 
     describe('lint', () => {
 
+        function extensionApiForService (serviceId) {
+            return sinon.match((extensionApi) => {
+                return extensionApi.serviceId === serviceId;
+            });
+        }
+
+        beforeEach(() => {
+
+            definition = {
+                services: {
+                    validService: {},
+                    invalidService: {}
+                }
+            };
+
+        });
+
         it('should resolve with an empty array for a valid container', () => {
 
             const container = new Container([], { services: {} });
@@ -731,11 +748,15 @@ describe('Container', () => {
 
         it('should resolve with errors for services with missing module loaders', () => {
 
-            const container = new Container([], definition);
+            const container = new Container([moduleLoader], definition);
+
+            moduleLoader.canLoadModule
+                .withArgs(sinon.match(extensionApiForService('invalidService')))
+                .returns(false);
 
             return container.lint().then((errors) => {
                 errors.length.should.equal(1);
-                errors[0].should.contain('exampleService');
+                errors[0].should.contain('invalidService');
             });
 
         });
