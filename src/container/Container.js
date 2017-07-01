@@ -200,14 +200,14 @@ export default class Container {
                 errors.push(`Missing initialiser for ${serviceId}`);
             }
 
-            _.each(serviceDefinition.args, (argDefinition) => {
+            _.each(serviceDefinition.args, (argDefinition, i) => {
 
                 const argResolver = _.find(this.argResolvers, (argResolver) => {
                     return argResolver.canResolveArg(argDefinition);
                 });
 
                 if (!argResolver) {
-                    errors.push(`Missing argResolver for ${argDefinition} in ${serviceId}`);
+                    errors.push(`Missing argResolver at [${i}] for ${serviceId}`);
                 }
 
             });
@@ -215,7 +215,7 @@ export default class Container {
             _.each(serviceDefinition.extras, (extraDefinition, i) => {
 
                 const extraHandler = _.find(this.extraHandlers, (extraHandler) => {
-                    return extraHandler.canHandleExtra(extraDefinition);
+                    return extraHandler.canHandleExtra(extraDefinition, extensionApi);
                 });
 
                 if (!extraHandler) {
