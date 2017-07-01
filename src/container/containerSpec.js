@@ -794,6 +794,24 @@ describe('Container', () => {
 
         });
 
+        it('should resolve with errors for services with missing extra handlers', () => {
+
+            const extraHandler = containerDoubles.extraHandler();
+            const container = new Container([moduleLoader, initialiser, extraHandler], definition);
+
+            definition.services.invalidService.extras = ['validExtra', 'invalidExtra'];
+
+            extraHandler.canHandleExtra.returns(true);
+            extraHandler.canHandleExtra.withArgs('invalidExtra').returns(false);
+
+            return container.lint().then((errors) => {
+                errors.length.should.equal(1);
+                errors[0].should.contain('invalidService');
+                errors[0].should.contain('[1]');
+            });
+
+        });
+
     });
 
 });

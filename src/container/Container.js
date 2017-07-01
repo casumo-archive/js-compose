@@ -212,6 +212,18 @@ export default class Container {
 
             });
 
+            _.each(serviceDefinition.extras, (extraDefinition, i) => {
+
+                const extraHandler = _.find(this.extraHandlers, (extraHandler) => {
+                    return extraHandler.canHandleExtra(extraDefinition);
+                });
+
+                if (!extraHandler) {
+                    errors.push(`Missing extraHandler at [${i}] for ${serviceId}`);
+                }
+
+            });
+
             return errors;
 
         }))));
