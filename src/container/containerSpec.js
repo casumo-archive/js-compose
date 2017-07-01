@@ -761,6 +761,24 @@ describe('Container', () => {
 
         });
 
+        it('should resolve with errors for services with missing arg resolvers', () => {
+
+            const container = new Container([moduleLoader, argResolver, initialiser], definition);
+
+            definition.services.validService.args = ['validArg'];
+            definition.services.invalidService.args = ['invalidArg'];
+
+            argResolver.canResolveArg.withArgs('validArg').returns(true);
+            argResolver.canResolveArg.withArgs('invalidArg').returns(false);
+
+            return container.lint().then((errors) => {
+                errors.length.should.equal(1);
+                errors[0].should.contain('invalidService');
+                errors[0].should.contain('invalidArg');
+            });
+
+        });
+
         it('should resolve with errors for services with missing initialisers', () => {
 
             const container = new Container([moduleLoader, initialiser], definition);

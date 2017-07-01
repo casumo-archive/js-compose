@@ -200,6 +200,18 @@ export default class Container {
                 errors.push(`Missing initialiser for ${serviceId}`);
             }
 
+            _.each(serviceDefinition.args, (argDefinition) => {
+
+                const argResolver = _.find(this.argResolvers, (argResolver) => {
+                    return argResolver.canResolveArg(argDefinition);
+                });
+
+                if (!argResolver) {
+                    errors.push(`Missing argResolver for ${argDefinition} in ${serviceId}`);
+                }
+
+            });
+
             return errors;
 
         }))));
