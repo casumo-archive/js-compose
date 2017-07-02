@@ -179,7 +179,7 @@ export default class Container {
      */
     lint () {
 
-        return Promise.resolve(_.compact(_.flatten(_.map(this.config.services, (serviceDefinition, serviceId) => {
+        return Promise.all(_.map(this.config.services, (serviceDefinition, serviceId) => {
 
             const errors = [];
             const extensionApi = new ExtensionApi(this, serviceId, serviceDefinition, _.noop);
@@ -190,6 +190,8 @@ export default class Container {
 
             if (!moduleLoader) {
                 errors.push(`Missing module loader for ${serviceId}`);
+            } else if (moduleLoader.lint) {
+                errors.push(moduleLoader.lint(extensionApi));
             }
 
             const initialiser = _.find(this.initialisers, (initialiser) => {
@@ -224,9 +226,9 @@ export default class Container {
 
             });
 
-            return errors;
+            return Promise.all(errors);
 
-        }))));
+        })).then((results) => _.compact(_.flattenDeep(results)));
 
     }
 

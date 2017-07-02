@@ -811,6 +811,31 @@ describe('Container', () => {
 
         });
 
+        it('should resolve with errors returned from module loader lint', () => {
+
+            const container = new Container([moduleLoader, initialiser], definition);
+
+            moduleLoader.lint
+                .withArgs(sinon.match(extensionApiForService('invalidService')))
+                .resolves(['Example error']);
+
+            return container.lint().then((errors) => {
+                errors.length.should.equal(1);
+                errors[0].should.equal('Example error');
+            });
+
+        });
+
+        it('should not require module loaders to define the lint method', () => {
+
+            const container = new Container([moduleLoader, initialiser], definition);
+
+            delete moduleLoader.lint;
+
+            return container.lint().should.eventually.deep.equal([]);
+
+        });
+
     });
 
 });
