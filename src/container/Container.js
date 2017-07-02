@@ -210,6 +210,8 @@ export default class Container {
 
                 if (!argResolver) {
                     errors.push(`Missing argResolver at [${i}] for ${serviceId}`);
+                } else if (argResolver.lint) {
+                    errors.push(argResolver.lint(argDefinition, extensionApi));
                 }
 
             });

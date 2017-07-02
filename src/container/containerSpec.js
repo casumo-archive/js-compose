@@ -836,6 +836,35 @@ describe('Container', () => {
 
         });
 
+        it('should resolve with errors from arg resolver lint', () => {
+
+            const container = new Container([moduleLoader, argResolver, initialiser], definition);
+
+            definition.services.invalidService.args = ['arg'];
+
+            argResolver.lint
+                .withArgs('arg', sinon.match(extensionApiForService('invalidService')))
+                .resolves(['Example error']);
+
+            return container.lint().then((errors) => {
+                errors.length.should.equal(1);
+                errors[0].should.contain('Example error');
+            });
+
+        });
+
+        it('should not require arg resolvers to define the lint method', () => {
+
+            const container = new Container([moduleLoader, argResolver, initialiser], definition);
+
+            definition.services.invalidService.args = ['arg'];
+
+            delete argResolver.lint;
+
+            return container.lint().should.eventually.deep.equal([]);
+
+        });
+
     });
 
 });
