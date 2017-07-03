@@ -34,4 +34,25 @@ export default class ExtensionApi {
         return this.resolveArgs([argDefinition])[0];
     }
 
+    /**
+     * @param {*} argDefinition
+     *
+     * @throws {Error} - When there is no arg resolver for the definition
+     *
+     * @return {ArgResolver}
+     */
+    getArgResolver (argDefinition) {
+
+        const { argResolvers } = this.container;
+
+        const argResolver =  _.find(argResolvers, (r) => r.canResolveArg(argDefinition));
+
+        if (!argResolver) {
+            throw new Error(`No arg resolver for ${argDefinition}`);
+        }
+
+        return argResolver;
+
+    }
+
 }

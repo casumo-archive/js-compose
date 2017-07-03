@@ -3,9 +3,14 @@ import * as sinon from 'sinon';
 
 export const containerDoubles = {
 
-    container () {
+    container (params) {
+
+        params = params || {};
+
         return sinon.stub({
+            argResolvers: params.argResolvers || [],
             cache: {},
+            chain: [],
             config: {
                 services: {},
                 params: {}
