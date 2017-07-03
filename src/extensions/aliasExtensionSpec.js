@@ -51,4 +51,38 @@ describe('AliasExtension', () => {
 
     });
 
+    describe('lint', () => {
+
+        it('should resolve with an empty array when there is an arg resolver for the aliased arg', () => {
+
+            const extensionApi = containerDoubles.extensionApi({
+                serviceDefinition: {
+                    alias: 'foo'
+                }
+            });
+
+            extensionApi.getArgResolver.withArgs('foo').returns({});
+
+            return extension.lint(extensionApi).should.eventually.deep.equal([]);
+
+        });
+
+        it('should resolve with an array containing an error string if there is no arg resolver', () => {
+
+            const extensionApi = containerDoubles.extensionApi({
+                serviceDefinition: {
+                    alias: 'foo'
+                }
+            });
+
+            extensionApi.getArgResolver.throws();
+
+            return extension.lint(extensionApi).then((errors) => {
+                errors.length.should.equal(1);
+            });
+
+        });
+
+    });
+
 });

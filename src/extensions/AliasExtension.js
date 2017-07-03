@@ -1,3 +1,5 @@
+import { Promise } from '../globals';
+
 /**
  * Use this to define a service as an alias of an arg
  */
@@ -17,6 +19,16 @@ export default class AliasExtension {
 
     initialise (instanceCreatedCallback, loadedModule) {
         return loadedModule;
+    }
+
+    lint (extensionApi) {
+
+        const { alias } = extensionApi.serviceDefinition;
+
+        return new Promise((resolve) => resolve(extensionApi.getArgResolver(alias)))
+            .then(() => [])
+            .catch(() => ['Unable to resolve alias']);
+
     }
 
 }

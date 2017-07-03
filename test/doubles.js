@@ -61,7 +61,8 @@ export const containerDoubles = {
             serviceDefinition: params.serviceDefinition,
             container: this.container(),
             resolveArgs () {},
-            resolveArg () {}
+            resolveArg () {},
+            getArgResolver () {}
         });
 
     },
