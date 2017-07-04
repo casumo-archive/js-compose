@@ -9,7 +9,7 @@ describe('ExtensionApi', () => {
 
     it('exposes a container with an extended chain', () => {
 
-        const extensionApi = new ExtensionApi({ chain: [] }, 'foo', {}, () => {});
+        const extensionApi = new ExtensionApi({ chain: [] }, 'foo', {});
 
         extensionApi.container.chain.should.deep.equal(['foo']);
 
@@ -26,7 +26,7 @@ describe('ExtensionApi', () => {
                 argResolvers: [argResolver1, argResolver2]
             });
 
-            const extensionApi = new ExtensionApi(container, 'foo', {}, () => {});
+            const extensionApi = new ExtensionApi(container, 'foo', {});
 
             argResolver1.canResolveArg.returns(false);
             argResolver2.canResolveArg.withArgs('foo').returns(true);
@@ -39,7 +39,7 @@ describe('ExtensionApi', () => {
 
             const container = containerDoubles.container();
 
-            const extensionApi = new ExtensionApi(container, 'foo', {}, () => {});
+            const extensionApi = new ExtensionApi(container, 'foo', {});
 
             (() => extensionApi.getArgResolver('foo')).should.throw(Error);
 
@@ -71,6 +71,24 @@ describe('ExtensionApi', () => {
             extensionApi.getArgResolver.throws();
 
             return extensionApi.resolveArg('foo').should.be.rejected;
+
+        });
+
+    });
+
+    describe('resolveArgs', () => {
+
+        it('should return an array of resolved args', () => {
+
+            const extensionApi = new ExtensionApi(containerDoubles.container(), 'foo', {});
+
+            sinon.stub(extensionApi, 'resolveArg');
+
+            extensionApi.resolveArg.withArgs('foo').resolves('123');
+            extensionApi.resolveArg.withArgs('bar').resolves('456');
+
+            return Promise.all(extensionApi.resolveArgs(['foo', 'bar']))
+                .should.eventually.deep.equal(['123', '456']);
 
         });
 

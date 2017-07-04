@@ -5,7 +5,7 @@ import { _ } from '../globals';
  */
 export default class ExtensionApi {
 
-    constructor (container, serviceId, serviceDefinition, resolveArgs) {
+    constructor (container, serviceId, serviceDefinition) {
 
         this.container = _.extend({}, container, {
             chain: container.chain.concat(serviceId)
@@ -15,13 +15,6 @@ export default class ExtensionApi {
 
         this.serviceId = serviceId;
         this.serviceDefinition = serviceDefinition;
-
-        /**
-         * @param {Array<*>} argDefinitions
-         *
-         * @return {Array<Promise>}
-         */
-        this.resolveArgs = resolveArgs;
 
     }
 
@@ -34,6 +27,15 @@ export default class ExtensionApi {
         return new Promise((resolve) => {
             resolve(this.getArgResolver(argDefinition).resolveArg(argDefinition));
         });
+    }
+
+    /**
+     * @param {Array<*>} argDefinitions
+     *
+     * @return {Array<Promise>}
+     */
+    resolveArgs (argDefinitions) {
+        return argDefinitions.map((argDefinition) => this.resolveArg(argDefinition));
     }
 
     /**
