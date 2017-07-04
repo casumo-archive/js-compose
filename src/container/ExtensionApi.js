@@ -31,7 +31,9 @@ export default class ExtensionApi {
      * @return {Promise}
      */
     resolveArg (argDefinition) {
-        return this.resolveArgs([argDefinition])[0];
+        return new Promise((resolve) => {
+            resolve(this.getArgResolver(argDefinition).resolveArg(argDefinition));
+        });
     }
 
     /**

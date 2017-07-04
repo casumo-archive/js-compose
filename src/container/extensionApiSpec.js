@@ -15,21 +15,6 @@ describe('ExtensionApi', () => {
 
     });
 
-    describe('resolveArg', () => {
-
-        it('uses resolveArgs with the provided single arg definition', () => {
-
-            const resolveArgs = sinon.stub();
-            const extensionApi = new ExtensionApi({ chain: [] }, 'foo', {}, resolveArgs);
-
-            resolveArgs.withArgs(sinon.match(['in'])).returns(['out']);
-
-            extensionApi.resolveArg('in').should.equal('out');
-
-        });
-
-    });
-
     describe('getArgResolver', () => {
 
         it('should return the first arg resolver that can resolve the arg', () => {
@@ -57,6 +42,35 @@ describe('ExtensionApi', () => {
             const extensionApi = new ExtensionApi(container, 'foo', {}, () => {});
 
             (() => extensionApi.getArgResolver('foo')).should.throw(Error);
+
+        });
+
+    });
+
+    describe('resolveArg', () => {
+
+        it('should return a promise for the resolved arg from the arg resolver', () => {
+
+            const extensionApi = new ExtensionApi(containerDoubles.container(), 'foo', {});
+            const argResolver = containerDoubles.argResolver();
+
+            sinon.stub(extensionApi, 'getArgResolver');
+            extensionApi.getArgResolver.withArgs('foo').returns(argResolver);
+
+            argResolver.resolveArg.withArgs('foo').resolves('bar');
+
+            return extensionApi.resolveArg('foo').should.eventually.equal('bar');
+
+        });
+
+        it('should return a rejected promise if there is no arg resolver', () => {
+
+            const extensionApi = new ExtensionApi(containerDoubles.container(), 'foo', {});
+
+            sinon.stub(extensionApi, 'getArgResolver');
+            extensionApi.getArgResolver.throws();
+
+            return extensionApi.resolveArg('foo').should.be.rejected;
 
         });
 
