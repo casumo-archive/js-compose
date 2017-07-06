@@ -1,3 +1,4 @@
 module.exports = {
-    target: 'node'
+    target: 'node',
+    devtool: 'cheap-module-source-map'
 };

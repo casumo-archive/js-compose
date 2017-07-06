@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dist": "babel src --out-dir dist",
-    "test": "mocha-webpack --webpack-config webpack.config-test.js ./test/test-main.js"
+    "test": "mocha-webpack --webpack-config webpack.config-test.js --require source-map-support/register ./test/test-main.js"
   },
   "author": "Casumo <frontend@casumo.com> (https://www.casumo.com/)",
   "license": "MIT",
@@ -23,6 +23,7 @@
     "more-sinon-chai": "^1.1.0",
     "sinon": "^2.2.0",
     "sinon-chai": "^2.10.0",
+    "source-map-support": "^0.4.15",
     "webpack": "^2.5.1"
   }
 }
