@@ -1,4 +1,5 @@
 import { _ } from '../globals';
+import { ArgError } from './errors';
 
 /**
  * This is passed to most of the extension functions
@@ -24,9 +25,13 @@ export default class ExtensionApi {
      * @return {Promise}
      */
     resolveArg (argDefinition) {
-        return new Promise((resolve) => {
-            resolve(this.getArgResolver(argDefinition).resolveArg(argDefinition));
-        });
+
+        return Promise.resolve()
+            .then(() => this.getArgResolver(argDefinition).resolveArg(argDefinition))
+            .catch((e) => {
+                throw new ArgError(argDefinition, e);
+            });
+
     }
 
     /**

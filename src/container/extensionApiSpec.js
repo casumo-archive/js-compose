@@ -3,6 +3,7 @@
 
 import * as sinon from 'sinon';
 import { containerDoubles } from '../../test/doubles';
+import { ArgError } from './errors';
 import ExtensionApi from './ExtensionApi';
 
 describe('ExtensionApi', () => {
@@ -63,14 +64,28 @@ describe('ExtensionApi', () => {
 
         });
 
-        it('should return a rejected promise if there is no arg resolver', () => {
+        it('should return a promise rejected with ArgError if there is no arg resolver', () => {
 
             const extensionApi = new ExtensionApi(containerDoubles.container(), 'foo', {});
 
             sinon.stub(extensionApi, 'getArgResolver');
             extensionApi.getArgResolver.throws();
 
-            return extensionApi.resolveArg('foo').should.be.rejected;
+            return extensionApi.resolveArg('foo').should.be.rejectedWith(ArgError);
+
+        });
+
+        it('should return a promise rejected with ArgError if arg resolver rejects', () => {
+
+            const argResolver = containerDoubles.argResolver();
+            const extensionApi = new ExtensionApi(containerDoubles.container(), 'foo', {});
+
+            sinon.stub(extensionApi, 'getArgResolver');
+            extensionApi.getArgResolver.returns(argResolver);
+
+            argResolver.resolveArg.withArgs('foo').rejects(new Error('foo error'));
+
+            return extensionApi.resolveArg('foo').should.be.rejectedWith(ArgError);
 
         });
 
