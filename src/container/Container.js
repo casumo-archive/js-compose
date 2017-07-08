@@ -29,32 +29,7 @@ export default class Container {
         const definition = self.config.services[id];
         let mappedExtraHandlers;
         const ComposedError = _.partial(ContainerError, id);
-        const extensionApi = new ExtensionApi(self, id, definition, resolveArgs);
-
-        function resolveArgs (argDefinitions) {
-
-            return _.map(argDefinitions || [], (argDefinition) => {
-
-                const argResolver = _.find(self.argResolvers, (argResolver) => {
-                    return argResolver.canResolveArg(argDefinition);
-                });
-
-                if (!argResolver) {
-                    throw new Error(`No arg resolver for ${argDefinition}`);
-                }
-
-                return argResolver.resolveArg(argDefinition, extensionApi).then(null, (error) => {
-
-                    if (!(error instanceof ContainerError)) {
-                        error.message = `Arg resolver failed for ${argDefinition}. Reason: ${error.message}`;
-                    }
-
-                    throw error;
-                });
-
-            });
-
-        }
+        const extensionApi = new ExtensionApi(self, id, definition);
 
         const output = self.cache[id] || new Promise((resolve) => {
 
@@ -88,7 +63,7 @@ export default class Container {
                 throw new Error('No module loader');
             }
 
-            const promises = resolveArgs(definition.args);
+            const promises = extensionApi.resolveArgs(definition.args || []);
 
             promises.unshift(moduleLoader.loadModule(extensionApi));
 

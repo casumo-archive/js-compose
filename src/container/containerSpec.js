@@ -199,8 +199,10 @@ describe('Container', () => {
 
             container.get('exampleService');
 
-            uselessArgResolver.resolveArg.should.not.have.been.called;
-            argResolver.resolveArg.should.have.been.called;
+            // eslint-disable-next-line max-nested-callbacks
+            return argResolver.resolveArg.should.eventuallyBeCalled().then(() => {
+                uselessArgResolver.resolveArg.should.not.have.been.called;
+            });
 
         });
 
@@ -223,7 +225,7 @@ describe('Container', () => {
 
         });
 
-        it('passes extension api to the arg resolvers', (done) => {
+        it('passes extension api to the arg resolvers', () => {
 
             const container = new Container(
                 [moduleLoader, argResolver, initialiser],
@@ -236,13 +238,12 @@ describe('Container', () => {
                 }
             );
 
-            // eslint-disable-next-line max-nested-callbacks
-            container.get('exampleService').then(() => {
-                argResolver.resolveArg.should.have.been.calledWith(
-                    'foo',
-                    sinon.match.instanceOf(ExtensionApi)
-                );
-                done();
+            container.get('exampleService');
+
+            // eslint-disable-next-line max-nested-callbacks, max-len
+            return argResolver.resolveArg.should.eventuallyBeCalled().then(([argDefinition, extensionApi]) => {
+                argDefinition.should.equal('foo');
+                extensionApi.should.be.instanceOf(ExtensionApi);
             });
 
         });

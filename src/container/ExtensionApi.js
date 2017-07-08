@@ -27,7 +27,7 @@ export default class ExtensionApi {
     resolveArg (argDefinition) {
 
         return Promise.resolve()
-            .then(() => this.getArgResolver(argDefinition).resolveArg(argDefinition))
+            .then(() => this.getArgResolver(argDefinition).resolveArg(argDefinition, this))
             .catch((e) => {
                 throw new ArgError(argDefinition, e);
             });
@@ -57,7 +57,7 @@ export default class ExtensionApi {
         const argResolver =  _.find(argResolvers, (r) => r.canResolveArg(argDefinition));
 
         if (!argResolver) {
-            throw new Error(`No arg resolver for ${argDefinition}`);
+            throw new Error('No arg resolver');
         }
 
         return argResolver;

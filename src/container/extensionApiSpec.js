@@ -58,7 +58,7 @@ describe('ExtensionApi', () => {
             sinon.stub(extensionApi, 'getArgResolver');
             extensionApi.getArgResolver.withArgs('foo').returns(argResolver);
 
-            argResolver.resolveArg.withArgs('foo').resolves('bar');
+            argResolver.resolveArg.withArgs('foo', extensionApi).resolves('bar');
 
             return extensionApi.resolveArg('foo').should.eventually.equal('bar');
 
@@ -83,7 +83,7 @@ describe('ExtensionApi', () => {
             sinon.stub(extensionApi, 'getArgResolver');
             extensionApi.getArgResolver.returns(argResolver);
 
-            argResolver.resolveArg.withArgs('foo').rejects(new Error('foo error'));
+            argResolver.resolveArg.withArgs('foo', extensionApi).rejects(new Error('foo error'));
 
             return extensionApi.resolveArg('foo').should.be.rejectedWith(ArgError);
 
