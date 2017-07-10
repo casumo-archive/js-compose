@@ -1,6 +1,6 @@
 import { _, Promise } from '../globals';
-import ContainerError from './ContainerError';
 import ExtensionApi from './ExtensionApi';
+import { ServiceError } from './errors';
 
 function countOccurrences (array, item) {
     return array.filter(_.isEqual.bind(_, item)).length;
@@ -28,7 +28,6 @@ export default class Container {
         const self = this;
         const definition = self.config.services[id];
         let mappedExtraHandlers;
-        const ComposedError = _.partial(ContainerError, id);
         const extensionApi = new ExtensionApi(self, id, definition);
 
         const output = self.cache[id] || new Promise((resolve) => {
@@ -132,12 +131,7 @@ export default class Container {
             resolve(self.cache[id]);
 
         }).then(null, (error) => {
-
-            if (error instanceof ContainerError) {
-                throw error;
-            }
-
-            throw new ComposedError(error);
+            throw new ServiceError(id, error);
         });
 
         _.each(mappedExtraHandlers, (handler, extraIndex) => {

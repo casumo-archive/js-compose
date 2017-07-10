@@ -7,6 +7,7 @@ import { containerDoubles } from '../../test/doubles';
 import Container from './Container';
 import { defaultInitialiser } from './Container';
 import ExtensionApi from './ExtensionApi';
+import { ServiceError } from './errors';
 
 let definition;
 let moduleLoader;
@@ -110,7 +111,7 @@ describe('Container', () => {
 
             const result = container.get('exampleService');
 
-            return result.should.eventually.be.rejected;
+            return result.should.eventually.be.rejectedWith(ServiceError);
 
         });
 
@@ -125,7 +126,7 @@ describe('Container', () => {
 
             const result = container.get('exampleService');
 
-            return result.should.eventually.be.rejected;
+            return result.should.eventually.be.rejectedWith(ServiceError);
 
         });
 
@@ -206,7 +207,7 @@ describe('Container', () => {
 
         });
 
-        it('rejects the promise if no valid arg resolver is available', () => {
+        it('returns promise rejected with ServiceError if no valid arg resolver is available', () => {
 
             const container = new Container(
                 [moduleLoader, argResolver, initialiser],
@@ -221,7 +222,7 @@ describe('Container', () => {
 
             argResolver.canResolveArg.returns(false);
 
-            return container.get('exampleService').should.eventually.be.rejected;
+            return container.get('exampleService').should.eventually.be.rejectedWith(ServiceError);
 
         });
 
@@ -412,7 +413,7 @@ describe('Container', () => {
                 definition
             );
 
-            return container.get('exampleService').should.eventually.be.rejected;
+            return container.get('exampleService').should.eventually.be.rejectedWith(ServiceError);
 
         });
 
@@ -459,7 +460,7 @@ describe('Container', () => {
             const extraHandler = containerDoubles.extraHandler();
 
             extraHandler.canHandleExtra.returns(true);
-            extraHandler.beforeServiceInitialised.rejects();
+            extraHandler.beforeServiceInitialised.rejects(new Error());
 
             const container = new Container(
                 [moduleLoader, initialiser, extraHandler],
@@ -472,7 +473,7 @@ describe('Container', () => {
                 }
             );
 
-            return container.get('exampleService').should.eventually.be.rejected;
+            return container.get('exampleService').should.eventually.be.rejectedWith(ServiceError);
 
         });
 
@@ -516,7 +517,7 @@ describe('Container', () => {
             const instance = {};
 
             extraHandler.canHandleExtra.returns(true);
-            extraHandler.onServiceInitialised.rejects();
+            extraHandler.onServiceInitialised.rejects(new Error());
             initialiser.initialise.returns(instance);
 
             const container = new Container(
@@ -530,7 +531,7 @@ describe('Container', () => {
                 }
             );
 
-            return container.get('exampleService').should.eventually.be.rejected;
+            return container.get('exampleService').should.eventually.be.rejectedWith(ServiceError);
 
         });
 
@@ -635,7 +636,7 @@ describe('Container', () => {
                 }
             );
 
-            return container.get('exampleService').should.eventually.be.rejected;
+            return container.get('exampleService').should.eventually.be.rejectedWith(ServiceError);
 
         });
 
