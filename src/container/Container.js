@@ -151,7 +151,7 @@ export default class Container {
         return Promise.all(_.map(this.config.services, (serviceDefinition, serviceId) => {
 
             const errors = [];
-            const extensionApi = new ExtensionApi(this, serviceId, serviceDefinition, _.noop);
+            const extensionApi = new ExtensionApi(this, serviceId, serviceDefinition);
 
             const moduleLoader = _.find(this.moduleLoaders, (moduleLoader) => {
                 return moduleLoader.canLoadModule(extensionApi);
@@ -173,14 +173,14 @@ export default class Container {
 
             _.each(serviceDefinition.args, (argDefinition, i) => {
 
-                const argResolver = _.find(this.argResolvers, (argResolver) => {
-                    return argResolver.canResolveArg(argDefinition);
-                });
+                try {
+                    const argResolver = extensionApi.getArgResolver(argDefinition);
 
-                if (!argResolver) {
+                    if (argResolver.lint) {
+                        errors.push(argResolver.lint(argDefinition, extensionApi));
+                    }
+                } catch (e) {
                     errors.push(`Missing argResolver at [${i}] for ${serviceId}`);
-                } else if (argResolver.lint) {
-                    errors.push(argResolver.lint(argDefinition, extensionApi));
                 }
 
             });
