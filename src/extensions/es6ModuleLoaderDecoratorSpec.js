@@ -1,3 +1,4 @@
+/* globals should */
 /* eslint no-unused-expressions: 0, max-nested-callbacks: 0 */
 /* eslint-env mocha */
 
@@ -54,6 +55,31 @@ describe('ES6ModuleLoaderDecorator', () => {
             decorated.loadModule.withArgs(extensionApi).resolves(expected);
 
             return loader.loadModule(extensionApi).should.eventually.equal(expected);
+
+        });
+
+    });
+
+    describe('lint', () => {
+
+        it('should defer to decorated', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+            const expected = [];
+
+            decorated.lint.withArgs(extensionApi).resolves(expected);
+
+            return loader.lint(extensionApi).should.eventually.equal(expected);
+
+        });
+
+        it('should return void when decorated has no lint function', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            delete decorated.lint;
+
+            should.not.exist(loader.lint(extensionApi));
 
         });
 
