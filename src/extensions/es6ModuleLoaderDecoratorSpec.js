@@ -1,7 +1,7 @@
-/* globals should */
 /* eslint no-unused-expressions: 0, max-nested-callbacks: 0 */
 /* eslint-env mocha */
 
+import { expect } from 'chai';
 import { containerDoubles } from '../../test/doubles';
 import ES6ModuleLoaderDecorator from './ES6ModuleLoaderDecorator';
 
@@ -79,7 +79,7 @@ describe('ES6ModuleLoaderDecorator', () => {
 
             delete decorated.lint;
 
-            should.not.exist(loader.lint(extensionApi));
+            expect(loader.lint(extensionApi)).to.not.exist;
 
         });
 

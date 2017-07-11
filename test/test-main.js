@@ -1,4 +1,3 @@
-/* globals global */
 const glob = require('glob');
 const moreSinonChai = require('more-sinon-chai');
 const _ = require('lodash');
@@ -7,7 +6,7 @@ require('../src/globals.js').configure(_, Promise);
 
 moreSinonChai.moreSinon(_, Promise, require('sinon'));
 
-global.should = require('chai').should();
+require('chai').should();
 require('chai').use(require('chai-as-promised'));
 require('chai').use(require('sinon-chai'));
 require('chai').use(moreSinonChai.moreChai(_, Promise));
