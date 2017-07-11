@@ -18,4 +18,12 @@ export default class DeferredArgResolver {
 
     }
 
+    lint (argDefinition, extensionApi) {
+
+        return new Promise((resolve) => resolve(extensionApi.getArgResolver(argDefinition)))
+            .then(() => [])
+            .catch(() => ['Unable to resolve deferred arg']);
+
+    }
+
 }

@@ -44,4 +44,31 @@ describe('DeferredArgResolver', () => {
         });
 
     });
+
+    describe('lint', () => {
+
+        it('should resolve with an empty array when there is an arg resolver for the deferred arg', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            extensionApi.getArgResolver.withArgs('foo').returns({});
+
+            return argResolver.lint('foo', extensionApi).should.eventually.deep.equal([]);
+
+        });
+
+        it('should resolve with an array containing an error string if there is no arg resolver', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            extensionApi.getArgResolver.throws();
+
+            return argResolver.lint('foo', extensionApi).then((errors) => {
+                errors.length.should.equal(1);
+            });
+
+        });
+
+    });
+
 });
