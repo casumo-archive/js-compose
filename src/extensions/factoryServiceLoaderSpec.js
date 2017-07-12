@@ -72,4 +72,53 @@ describe('FactoryServiceLoader', () => {
 
     });
 
+    describe('lint', () => {
+
+        it('should resolve with an empty array when there is a service definition', () => {
+
+            const extensionApi = containerDoubles.extensionApi({
+                serviceDefinition: {
+                    factoryService: 'foo'
+                }
+            });
+
+            extensionApi.container.config.services.foo = {};
+
+            return loader.lint(extensionApi).should.eventually.deep.equal([]);
+
+        });
+
+        it('should support dot notation', () => {
+
+            const extensionApi = containerDoubles.extensionApi({
+                serviceDefinition: {
+                    factoryService: 'foo.bar'
+                }
+            });
+
+            extensionApi.container.config.services.foo = {};
+
+            return loader.lint(extensionApi).should.eventually.deep.equal([]);
+
+        });
+
+        it('should resolve with error string if there is no service definition', () => {
+
+            const extensionApi = containerDoubles.extensionApi({
+                serviceDefinition: {
+                    factoryService: 'foo'
+                }
+            });
+
+            return loader.lint(extensionApi).then((errors) => {
+
+                errors.length.should.equal(1);
+                errors[0].should.contain('foo');
+
+            });
+
+        });
+
+    });
+
 });

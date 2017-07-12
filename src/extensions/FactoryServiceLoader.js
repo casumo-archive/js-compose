@@ -37,4 +37,20 @@ export default class FactoryServiceLoader {
 
     }
 
+    lint (extensionApi) {
+
+        return Promise.resolve().then(() => {
+
+            const [serviceId] = extensionApi.serviceDefinition.factoryService.split('.');
+
+            if (extensionApi.container.config.services[serviceId]) {
+                return [];
+            }
+
+            return [`Missing definition for factory service '${serviceId}'`];
+
+        });
+
+    }
+
 }
