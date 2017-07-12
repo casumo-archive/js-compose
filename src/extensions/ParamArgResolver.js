@@ -12,4 +12,18 @@ export default class ParamArgResolver {
         );
     }
 
+    lint (argDefinition, extensionApi) {
+        return Promise.resolve().then(() => {
+
+            const paramPath = argDefinition.substring(1);
+
+            if (_.has(extensionApi.container.config.params, paramPath)) {
+                return [];
+            }
+
+            return [`Missing param '${paramPath}'`];
+
+        });
+    }
+
 }

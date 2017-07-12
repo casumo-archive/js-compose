@@ -40,4 +40,43 @@ describe('ParamArgResolver', () => {
         });
 
     });
+
+    describe('lint', () => {
+
+        it('should resolve with an empty array for an existing param', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            extensionApi.container.config.params.foo = 'bar';
+
+            return argResolver.lint('%foo', extensionApi).should.eventually.deep.equal([]);
+
+        });
+
+        it('should resolve with an error message for non-existent param', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            return argResolver.lint('%foo', extensionApi).then((errors) => {
+                errors.length.should.equal(1);
+                errors[0].should.contain('foo');
+            });
+
+        });
+
+        it('should resolve with an error message for non-existent nested param', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            extensionApi.container.config.params.foo = {};
+
+            return argResolver.lint('%foo.bar', extensionApi).then((errors) => {
+                errors.length.should.equal(1);
+                errors[0].should.contain('foo.bar');
+            });
+
+        });
+
+    });
+
 });
