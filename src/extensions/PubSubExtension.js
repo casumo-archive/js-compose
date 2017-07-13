@@ -111,4 +111,33 @@ export default class PubSubExtension {
 
     }
 
+    lint (argDefinition, extensionApi) {
+
+        const eventName = argDefinition.substring(8);
+
+        const subscriptionEventNames = _(extensionApi.container.config.services)
+            .flatMap('extras')
+            .map('subscribe')
+            .compact()
+            .flatMap((subscriptionDefinition) => {
+                if (_.isObject(subscriptionDefinition)) {
+                    return _.keys(subscriptionDefinition);
+                }
+
+                return [subscriptionDefinition];
+            })
+            .value();
+
+        return Promise.resolve().then(() => {
+
+            if (_.includes(subscriptionEventNames, eventName)) {
+                return [];
+            }
+
+            return [`Missing matching subscription for ${eventName} publisher`];
+
+        });
+
+    }
+
 }

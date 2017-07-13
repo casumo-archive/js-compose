@@ -145,4 +145,50 @@ describe('PubSubExtension', () => {
         });
     });
 
+    describe('lint', () => {
+
+        it('should return an empty array when linting publish arg which has a string subscription', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            extensionApi.container.config.services.fooSubscriber = {
+                extras: [{
+                    subscribe: 'foo'
+                }]
+            };
+
+            return extension.lint('publish:foo', extensionApi).should.eventually.deep.equal([]);
+
+        });
+
+        // eslint-disable-next-line max-len
+        it('should return an empty array when linting publish arg which has a object subscription for event', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            extensionApi.container.config.services.fooSubscriber = {
+                extras: [{
+                    subscribe: {
+                        foo: 'bar'
+                    }
+                }]
+            };
+
+            return extension.lint('publish:foo', extensionApi).should.eventually.deep.equal([]);
+
+        });
+
+        it('should return an error when linting publisher with no matching subscription', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            return extension.lint('publish:foo', extensionApi).then((errors) => {
+                errors.length.should.equal(1);
+                errors[0].should.contain('foo');
+            });
+
+        });
+
+    });
+
 });
