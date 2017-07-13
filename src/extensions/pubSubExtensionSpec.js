@@ -145,7 +145,7 @@ describe('PubSubExtension', () => {
         });
     });
 
-    describe('lint', () => {
+    describe('lintArg', () => {
 
         it('should return an empty array when linting publish arg which has a string subscription', () => {
 
@@ -157,7 +157,7 @@ describe('PubSubExtension', () => {
                 }]
             };
 
-            return extension.lint('publish:foo', extensionApi).should.eventually.deep.equal([]);
+            return extension.lintArg('publish:foo', extensionApi).should.eventually.deep.equal([]);
 
         });
 
@@ -174,7 +174,7 @@ describe('PubSubExtension', () => {
                 }]
             };
 
-            return extension.lint('publish:foo', extensionApi).should.eventually.deep.equal([]);
+            return extension.lintArg('publish:foo', extensionApi).should.eventually.deep.equal([]);
 
         });
 
@@ -182,7 +182,7 @@ describe('PubSubExtension', () => {
 
             const extensionApi = containerDoubles.extensionApi();
 
-            return extension.lint('publish:foo', extensionApi).then((errors) => {
+            return extension.lintArg('publish:foo', extensionApi).then((errors) => {
                 errors.length.should.equal(1);
                 errors[0].should.contain('foo');
             });

@@ -838,13 +838,13 @@ describe('Container', () => {
 
         });
 
-        it('should resolve with errors from arg resolver lint', () => {
+        it('should resolve with errors from arg resolver lintArg', () => {
 
             const container = new Container([moduleLoader, argResolver, initialiser], definition);
 
             definition.services.invalidService.args = ['arg'];
 
-            argResolver.lint
+            argResolver.lintArg
                 .withArgs('arg', sinon.match(extensionApiForService('invalidService')))
                 .resolves(['Example error']);
 
@@ -861,7 +861,7 @@ describe('Container', () => {
 
             definition.services.invalidService.args = ['arg'];
 
-            delete argResolver.lint;
+            delete argResolver.lintArg;
 
             return container.lint().should.eventually.deep.equal([]);
 

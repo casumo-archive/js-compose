@@ -45,7 +45,7 @@ describe('DeferredArgResolver', () => {
 
     });
 
-    describe('lint', () => {
+    describe('lintArg', () => {
 
         it('should resolve with an empty array when there is an arg resolver for the deferred arg', () => {
 
@@ -53,7 +53,7 @@ describe('DeferredArgResolver', () => {
 
             extensionApi.getArgResolver.withArgs('foo').returns({});
 
-            return argResolver.lint('foo', extensionApi).should.eventually.deep.equal([]);
+            return argResolver.lintArg('foo', extensionApi).should.eventually.deep.equal([]);
 
         });
 
@@ -63,7 +63,7 @@ describe('DeferredArgResolver', () => {
 
             extensionApi.getArgResolver.throws();
 
-            return argResolver.lint('foo', extensionApi).then((errors) => {
+            return argResolver.lintArg('foo', extensionApi).then((errors) => {
                 errors.length.should.equal(1);
             });
 

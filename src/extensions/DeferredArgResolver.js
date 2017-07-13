@@ -18,7 +18,7 @@ export default class DeferredArgResolver {
 
     }
 
-    lint (argDefinition, extensionApi) {
+    lintArg (argDefinition, extensionApi) {
 
         return new Promise((resolve) => resolve(extensionApi.getArgResolver(argDefinition)))
             .then(() => [])

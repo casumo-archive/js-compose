@@ -12,7 +12,7 @@ export default class ParamArgResolver {
         );
     }
 
-    lint (argDefinition, extensionApi) {
+    lintArg (argDefinition, extensionApi) {
         return Promise.resolve().then(() => {
 
             const paramPath = argDefinition.substring(1);

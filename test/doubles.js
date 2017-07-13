@@ -31,7 +31,7 @@ export const containerDoubles = {
         return sinon.stub({
             canResolveArg (argDefinition) {},
             resolveArg (argDefinition, extensionApi) {},
-            lint (argDefinition, extensionApi) {}
+            lintArg (argDefinition, extensionApi) {}
         });
     },
 

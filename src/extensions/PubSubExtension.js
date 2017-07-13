@@ -111,7 +111,7 @@ export default class PubSubExtension {
 
     }
 
-    lint (argDefinition, extensionApi) {
+    lintArg (argDefinition, extensionApi) {
 
         const eventName = argDefinition.substring(8);
 

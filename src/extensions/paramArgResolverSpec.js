@@ -41,7 +41,7 @@ describe('ParamArgResolver', () => {
 
     });
 
-    describe('lint', () => {
+    describe('lintArg', () => {
 
         it('should resolve with an empty array for an existing param', () => {
 
@@ -49,7 +49,7 @@ describe('ParamArgResolver', () => {
 
             extensionApi.container.config.params.foo = 'bar';
 
-            return argResolver.lint('%foo', extensionApi).should.eventually.deep.equal([]);
+            return argResolver.lintArg('%foo', extensionApi).should.eventually.deep.equal([]);
 
         });
 
@@ -57,7 +57,7 @@ describe('ParamArgResolver', () => {
 
             const extensionApi = containerDoubles.extensionApi();
 
-            return argResolver.lint('%foo', extensionApi).then((errors) => {
+            return argResolver.lintArg('%foo', extensionApi).then((errors) => {
                 errors.length.should.equal(1);
                 errors[0].should.contain('foo');
             });
@@ -70,7 +70,7 @@ describe('ParamArgResolver', () => {
 
             extensionApi.container.config.params.foo = {};
 
-            return argResolver.lint('%foo.bar', extensionApi).then((errors) => {
+            return argResolver.lintArg('%foo.bar', extensionApi).then((errors) => {
                 errors.length.should.equal(1);
                 errors[0].should.contain('foo.bar');
             });

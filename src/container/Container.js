@@ -176,8 +176,8 @@ export default class Container {
                 try {
                     const argResolver = extensionApi.getArgResolver(argDefinition);
 
-                    if (argResolver.lint) {
-                        errors.push(argResolver.lint(argDefinition, extensionApi));
+                    if (argResolver.lintArg) {
+                        errors.push(argResolver.lintArg(argDefinition, extensionApi));
                     }
                 } catch (e) {
                     errors.push(`Missing argResolver at [${i}] for ${serviceId}`);
