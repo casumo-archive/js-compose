@@ -147,7 +147,7 @@ describe('PubSubExtension', () => {
 
     describe('lintArg', () => {
 
-        it('should return an empty array when linting publish arg which has a string subscription', () => {
+        it('should return an empty array when publisher has a matching string subscription', () => {
 
             const extensionApi = containerDoubles.extensionApi();
 
@@ -161,8 +161,7 @@ describe('PubSubExtension', () => {
 
         });
 
-        // eslint-disable-next-line max-len
-        it('should return an empty array when linting publish arg which has a object subscription for event', () => {
+        it('should return an empty array when publisher has a matching object subscription', () => {
 
             const extensionApi = containerDoubles.extensionApi();
 
@@ -178,7 +177,7 @@ describe('PubSubExtension', () => {
 
         });
 
-        it('should return an error when linting publisher with no matching subscription', () => {
+        it('should return an error when publisher has no matching subscription', () => {
 
             const extensionApi = containerDoubles.extensionApi();
 
