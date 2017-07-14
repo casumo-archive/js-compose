@@ -48,7 +48,8 @@ export const containerDoubles = {
             beforeServiceInitialised (extraDefinition, extensionApi) {},
             onServiceInitialised (instance, extraDefinition, extensionApi) {},
             onServiceInstanceCreated (instance, extraDefinition, extensionApi) {},
-            onGetComplete (extraDefinition, extensionApi) {}
+            onGetComplete (extraDefinition, extensionApi) {},
+            lintExtra (extraDefinition, extensionApi) {}
         });
     },
 

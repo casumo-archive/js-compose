@@ -867,6 +867,40 @@ describe('Container', () => {
 
         });
 
+        it('should resolve with errors from extra handler lintExtra', () => {
+
+            const extraHandler = containerDoubles.extraHandler();
+            const container = new Container([moduleLoader, initialiser, extraHandler], definition);
+
+            definition.services.invalidService.extras = ['extra'];
+
+            extraHandler.canHandleExtra.returns(true);
+
+            extraHandler.lintExtra
+                .withArgs('extra', sinon.match(extensionApiForService('invalidService')))
+                .resolves(['Example error']);
+
+            return container.lint().then((errors) => {
+                errors.length.should.equal(1);
+                errors[0].should.contain('Example error');
+            });
+
+        });
+
+        it('should not require extra handlers to define the lintExtra method', () => {
+
+            const extraHandler = containerDoubles.extraHandler();
+            const container = new Container([moduleLoader, initialiser, extraHandler], definition);
+
+            definition.services.invalidService.extras = ['extra'];
+
+            extraHandler.canHandleExtra.returns(true);
+            delete extraHandler.lintExtra;
+
+            return container.lint().should.eventually.deep.equal([]);
+
+        });
+
     });
 
 });

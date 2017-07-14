@@ -193,6 +193,8 @@ export default class Container {
 
                 if (!extraHandler) {
                     errors.push(`Missing extraHandler at [${i}] for ${serviceId}`);
+                } else if (extraHandler.lintExtra) {
+                    errors.push(extraHandler.lintExtra(extraDefinition, extensionApi));
                 }
 
             });
