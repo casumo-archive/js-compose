@@ -1,4 +1,4 @@
-import { _ } from '../globals';
+import { _, Promise } from '../globals';
 
 export default class ServiceArgResolver {
 
@@ -20,6 +20,21 @@ export default class ServiceArgResolver {
 
         });
 
+    }
+
+    lintArg (argDefinition, extensionApi) {
+
+        const [serviceName] = argDefinition.substring(1).split('.');
+
+        return Promise.resolve().then(() => {
+
+            if (_.has(extensionApi.container.config.services, serviceName)) {
+                return [];
+            }
+
+            return [`Missing service definition for ${argDefinition}`];
+
+        });
     }
 
 }

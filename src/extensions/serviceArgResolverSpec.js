@@ -45,4 +45,40 @@ describe('ServiceArgResolver', () => {
         });
 
     });
+
+    describe('lintArg', () => {
+
+        it('should return an empty array if a matching service exists', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            extensionApi.container.config.services.foo = {};
+
+            return argResolver.lintArg('@foo', extensionApi).should.eventually.deep.equal([]);
+
+        });
+
+        it('should support service args with dot notation', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            extensionApi.container.config.services.foo = {};
+
+            return argResolver.lintArg('@foo.bar.abc', extensionApi).should.eventually.deep.equal([]);
+
+        });
+
+        it('should return an error if there is no matching service', () => {
+
+            const extensionApi = containerDoubles.extensionApi();
+
+            return argResolver.lintArg('@foo', extensionApi).then((errors) => {
+                errors.length.should.equal(1);
+                errors[0].should.contain('foo');
+            });
+
+        });
+
+    });
+
 });
