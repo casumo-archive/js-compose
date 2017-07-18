@@ -140,4 +140,38 @@ export default class PubSubExtension {
 
     }
 
+    /**
+     * @param {Object} extraDefinition
+     * @param {Object} extensionApi
+     */
+    lintExtra ({ subscribe }, extensionApi) {
+
+        const publishedEvents = _(extensionApi.container.config.services)
+            .flatMap('args')
+            .map((argDefinition) => {
+                if (this.canResolveArg(argDefinition)) {
+                    return argDefinition.substring(8);
+                }
+            })
+            .compact()
+            .value();
+
+        const subscriptionEventNames = _.isObject(subscribe) ? _.keys(subscribe) : [subscribe];
+
+        return Promise.resolve().then(() => {
+
+            return subscriptionEventNames.reduce((memo, eventName) => {
+
+                if (_.includes(publishedEvents, eventName)) {
+                    return memo;
+                }
+
+                return memo.concat(`Missing matching publisher for ${eventName} subscription`);
+
+            }, []);
+
+        });
+
+    }
+
 }

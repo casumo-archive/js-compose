@@ -190,4 +190,73 @@ describe('PubSubExtension', () => {
 
     });
 
+    describe('lintExtra', () => {
+
+        it('should return an empty array when a string subscription has a matching publisher', () => {
+
+            const extraDefinition = {
+                subscribe: 'foo'
+            };
+            const extensionApi = containerDoubles.extensionApi();
+
+            extensionApi.container.config.services.fooSubscriber = {
+                args: ['publish:foo']
+            };
+
+            return extension.lintExtra(extraDefinition, extensionApi).should.eventually.deep.equal([]);
+
+        });
+
+        it('should return an empty array all object subscriptions have matching publishers', () => {
+
+            const extraDefinition = {
+                subscribe: {
+                    foo: 'fooo',
+                    bar: 'baar'
+                }
+            };
+            const extensionApi = containerDoubles.extensionApi();
+
+            extensionApi.container.config.services.fooSubscriber = {
+                args: ['publish:foo', 'publish:bar']
+            };
+
+            return extension.lintExtra(extraDefinition, extensionApi).should.eventually.deep.equal([]);
+
+        });
+
+        it('should return an error for a string subscription missing a publisher', () => {
+
+            const extraDefinition = {
+                subscribe: 'foo'
+            };
+            const extensionApi = containerDoubles.extensionApi();
+
+            return extension.lintExtra(extraDefinition, extensionApi).then((errors) => {
+                errors.length.should.equal(1);
+                errors[0].should.contain('foo');
+            });
+
+        });
+
+        it('should return an error for each object subscription missing a publisher', () => {
+
+            const extraDefinition = {
+                subscribe: {
+                    foo: 'fooo',
+                    bar: 'baar'
+                }
+            };
+            const extensionApi = containerDoubles.extensionApi();
+
+            return extension.lintExtra(extraDefinition, extensionApi).then((errors) => {
+                errors.length.should.equal(2);
+                errors[0].should.contain('foo');
+                errors[1].should.contain('bar');
+            });
+
+        });
+
+    });
+
 });
