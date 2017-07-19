@@ -23,7 +23,7 @@ export const containerDoubles = {
         return sinon.stub({
             canLoadModule (extensionApi) {},
             loadModule (extensionApi) {},
-            lint (extensionApi) {}
+            lintLoader (extensionApi) {}
         });
     },
 

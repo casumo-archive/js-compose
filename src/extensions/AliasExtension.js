@@ -21,7 +21,7 @@ export default class AliasExtension {
         return loadedModule;
     }
 
-    lint (extensionApi) {
+    lintLoader (extensionApi) {
 
         const { alias } = extensionApi.serviceDefinition;
 

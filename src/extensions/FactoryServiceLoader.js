@@ -37,7 +37,7 @@ export default class FactoryServiceLoader {
 
     }
 
-    lint (extensionApi) {
+    lintLoader (extensionApi) {
 
         return Promise.resolve().then(() => {
 

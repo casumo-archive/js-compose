@@ -159,8 +159,8 @@ export default class Container {
 
             if (!moduleLoader) {
                 errors.push(`Missing module loader for ${serviceId}`);
-            } else if (moduleLoader.lint) {
-                errors.push(moduleLoader.lint(extensionApi));
+            } else if (moduleLoader.lintLoader) {
+                errors.push(moduleLoader.lintLoader(extensionApi));
             }
 
             const initialiser = _.find(this.initialisers, (initialiser) => {

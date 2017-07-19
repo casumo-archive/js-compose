@@ -28,13 +28,13 @@ export default class ES6ModuleLoaderDecorator {
 
     }
 
-    lint (extensionApi) {
+    lintLoader (extensionApi) {
 
-        if (!this.decorated.lint) {
+        if (!this.decorated.lintLoader) {
             return;
         }
 
-        return this.decorated.lint(extensionApi);
+        return this.decorated.lintLoader(extensionApi);
 
     }
 

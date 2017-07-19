@@ -60,26 +60,26 @@ describe('ES6ModuleLoaderDecorator', () => {
 
     });
 
-    describe('lint', () => {
+    describe('lintLoader', () => {
 
         it('should defer to decorated', () => {
 
             const extensionApi = containerDoubles.extensionApi();
             const expected = [];
 
-            decorated.lint.withArgs(extensionApi).resolves(expected);
+            decorated.lintLoader.withArgs(extensionApi).resolves(expected);
 
-            return loader.lint(extensionApi).should.eventually.equal(expected);
+            return loader.lintLoader(extensionApi).should.eventually.equal(expected);
 
         });
 
-        it('should return void when decorated has no lint function', () => {
+        it('should return void when decorated has no lintLoader function', () => {
 
             const extensionApi = containerDoubles.extensionApi();
 
-            delete decorated.lint;
+            delete decorated.lintLoader;
 
-            expect(loader.lint(extensionApi)).to.not.exist;
+            expect(loader.lintLoader(extensionApi)).to.not.exist;
 
         });
 

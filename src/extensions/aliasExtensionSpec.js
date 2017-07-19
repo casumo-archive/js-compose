@@ -51,7 +51,7 @@ describe('AliasExtension', () => {
 
     });
 
-    describe('lint', () => {
+    describe('lintLoader', () => {
 
         it('should resolve with an empty array when there is an arg resolver for the aliased arg', () => {
 
@@ -63,7 +63,7 @@ describe('AliasExtension', () => {
 
             extensionApi.getArgResolver.withArgs('foo').returns({});
 
-            return extension.lint(extensionApi).should.eventually.deep.equal([]);
+            return extension.lintLoader(extensionApi).should.eventually.deep.equal([]);
 
         });
 
@@ -77,7 +77,7 @@ describe('AliasExtension', () => {
 
             extensionApi.getArgResolver.throws();
 
-            return extension.lint(extensionApi).then((errors) => {
+            return extension.lintLoader(extensionApi).then((errors) => {
                 errors.length.should.equal(1);
             });
 

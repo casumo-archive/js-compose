@@ -72,7 +72,7 @@ describe('FactoryServiceLoader', () => {
 
     });
 
-    describe('lint', () => {
+    describe('lintLoader', () => {
 
         it('should resolve with an empty array when there is a service definition', () => {
 
@@ -84,7 +84,7 @@ describe('FactoryServiceLoader', () => {
 
             extensionApi.container.config.services.foo = {};
 
-            return loader.lint(extensionApi).should.eventually.deep.equal([]);
+            return loader.lintLoader(extensionApi).should.eventually.deep.equal([]);
 
         });
 
@@ -98,7 +98,7 @@ describe('FactoryServiceLoader', () => {
 
             extensionApi.container.config.services.foo = {};
 
-            return loader.lint(extensionApi).should.eventually.deep.equal([]);
+            return loader.lintLoader(extensionApi).should.eventually.deep.equal([]);
 
         });
 
@@ -110,7 +110,7 @@ describe('FactoryServiceLoader', () => {
                 }
             });
 
-            return loader.lint(extensionApi).then((errors) => {
+            return loader.lintLoader(extensionApi).then((errors) => {
 
                 errors.length.should.equal(1);
                 errors[0].should.contain('foo');
