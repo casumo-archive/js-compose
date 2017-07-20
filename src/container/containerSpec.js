@@ -13,6 +13,7 @@ let definition;
 let moduleLoader;
 let argResolver;
 let initialiser;
+let extraHandler;
 let extensionApi;
 
 describe('Container', () => {
@@ -35,6 +36,9 @@ describe('Container', () => {
 
         initialiser = containerDoubles.initialiser();
         initialiser.canInitialise.returns(true);
+
+        extraHandler = containerDoubles.extraHandler();
+        extraHandler.canHandleExtra.returns(true);
 
         extensionApi = containerDoubles.extensionApi();
 
@@ -311,7 +315,6 @@ describe('Container', () => {
         // eslint-disable-next-line max-len
         it('passes a callback to initialisers which notifies extras when an instance of a service is created', () => {
 
-            const extraHandler = containerDoubles.extraHandler();
             const extraDefinition = {};
 
             const exampleInstance = {};
@@ -335,8 +338,6 @@ describe('Container', () => {
 
             initialiser.initialise.callsArgWith(0, exampleInstance);
 
-            extraHandler.canHandleExtra.returns(true);
-
             container.get('exampleService');
 
             return extraHandler.onServiceInstanceCreated.should.eventuallyBeCalled().then(_.spread(() => {
@@ -354,7 +355,6 @@ describe('Container', () => {
         // eslint-disable-next-line max-len
         it('should call onServiceInstanceCreated synchronously when initialiser calls instanceCreatedCallback', () => {
 
-            const extraHandler = containerDoubles.extraHandler();
             const exampleInstance = {};
 
             const container = new Container(
@@ -371,8 +371,6 @@ describe('Container', () => {
             );
 
             moduleLoader.loadModule.returns(() => {});
-
-            extraHandler.canHandleExtra.returns(true);
 
             return container.get('exampleService').then(() => {
 
@@ -419,7 +417,6 @@ describe('Container', () => {
 
         it('notifies extra before a service is initialised', () => {
 
-            const extraHandler = containerDoubles.extraHandler();
             const extraDefinition = {};
 
             const container = new Container(
@@ -435,7 +432,6 @@ describe('Container', () => {
                 }
             );
 
-            extraHandler.canHandleExtra.returns(true);
             extraHandler.beforeServiceInitialised.promises();
 
             container.get('exampleService');
@@ -457,9 +453,6 @@ describe('Container', () => {
 
         it('rejects when beforeServiceInitialised is rejected in a handler', () => {
 
-            const extraHandler = containerDoubles.extraHandler();
-
-            extraHandler.canHandleExtra.returns(true);
             extraHandler.beforeServiceInitialised.rejects(new Error());
 
             const container = new Container(
@@ -479,7 +472,6 @@ describe('Container', () => {
 
         it('notifies extra when a service is initialised', () => {
 
-            const extraHandler = containerDoubles.extraHandler();
             const extraDefinition = {};
 
             const container = new Container(
@@ -497,7 +489,6 @@ describe('Container', () => {
 
             const instance = {};
 
-            extraHandler.canHandleExtra.returns(true);
             initialiser.initialise.returns(instance);
 
             return container.get('exampleService').then(() => {
@@ -513,10 +504,8 @@ describe('Container', () => {
 
         it('rejects when onServiceInitialised is rejected in a handler', () => {
 
-            const extraHandler = containerDoubles.extraHandler();
             const instance = {};
 
-            extraHandler.canHandleExtra.returns(true);
             extraHandler.onServiceInitialised.rejects(new Error());
             initialiser.initialise.returns(instance);
 
@@ -537,8 +526,6 @@ describe('Container', () => {
 
         it('notifies extra handlers when the promise has been made', () => {
 
-            const extraHandler = containerDoubles.extraHandler();
-
             const container = new Container(
                 [moduleLoader, initialiser, extraHandler],
                 {
@@ -549,8 +536,6 @@ describe('Container', () => {
                     }
                 }
             );
-
-            extraHandler.canHandleExtra.returns(true);
 
             container.get('exampleService');
 
@@ -592,7 +577,6 @@ describe('Container', () => {
 
         it('ignores extras which cannot handle a definition', () => {
 
-            const extraHandler = containerDoubles.extraHandler();
             const uselessExtraHandler = containerDoubles.extraHandler();
             const extraDefinition = {};
 
@@ -611,7 +595,6 @@ describe('Container', () => {
 
             const instance = {};
 
-            extraHandler.canHandleExtra.returns(true);
             uselessExtraHandler.canHandleExtra.returns(false);
 
             initialiser.initialise.returns(instance);
@@ -797,12 +780,10 @@ describe('Container', () => {
 
         it('should resolve with errors for services with missing extra handlers', () => {
 
-            const extraHandler = containerDoubles.extraHandler();
             const container = new Container([moduleLoader, initialiser, extraHandler], definition);
 
             definition.services.invalidService.extras = ['validExtra', 'invalidExtra'];
 
-            extraHandler.canHandleExtra.returns(true);
             extraHandler.canHandleExtra.withArgs('invalidExtra').returns(false);
 
             return container.lint().then((errors) => {
@@ -869,12 +850,9 @@ describe('Container', () => {
 
         it('should resolve with errors from extra handler lintExtra', () => {
 
-            const extraHandler = containerDoubles.extraHandler();
             const container = new Container([moduleLoader, initialiser, extraHandler], definition);
 
             definition.services.invalidService.extras = ['extra'];
-
-            extraHandler.canHandleExtra.returns(true);
 
             extraHandler.lintExtra
                 .withArgs('extra', sinon.match(extensionApiForService('invalidService')))
@@ -889,12 +867,10 @@ describe('Container', () => {
 
         it('should not require extra handlers to define the lintExtra method', () => {
 
-            const extraHandler = containerDoubles.extraHandler();
             const container = new Container([moduleLoader, initialiser, extraHandler], definition);
 
             definition.services.invalidService.extras = ['extra'];
 
-            extraHandler.canHandleExtra.returns(true);
             delete extraHandler.lintExtra;
 
             return container.lint().should.eventually.deep.equal([]);
