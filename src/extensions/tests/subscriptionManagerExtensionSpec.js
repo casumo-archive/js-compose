@@ -1,8 +1,8 @@
 /* eslint no-unused-expressions: 0, max-nested-callbacks: 0 */
 /* eslint-env mocha */
 
+import sinon from 'sinon';
 import { _ } from '../../globals';
-import * as sinon from 'sinon';
 import { containerDoubles } from '../../../test/doubles';
 import SubscriptionManagerExtension from '../SubscriptionManagerExtension';
 

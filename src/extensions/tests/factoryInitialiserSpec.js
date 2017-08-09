@@ -1,8 +1,8 @@
 /* eslint no-unused-expressions: 0 */
 /* eslint-env mocha */
 
+import sinon from 'sinon';
 import { _ } from '../../globals';
-import * as sinon from 'sinon';
 import { addSpecsForCanInitialiseIfInitEquals } from '../../../test/initialisers';
 import FactoryInitialiser from '../FactoryInitialiser';
 

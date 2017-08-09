@@ -1,7 +1,7 @@
 /* eslint no-unused-expressions: 0, max-nested-callbacks: 0 */
 /* eslint-env mocha */
 
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { containerDoubles } from '../../../test/doubles';
 import { addSpecsForCanResolveArgMatchingPrefix } from '../../../test/argResolvers';
 import { addSpecsForCanHandleExtraWithProperty } from '../../../test/extraHandlers';
