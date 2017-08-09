@@ -2,9 +2,9 @@
 /* eslint-env mocha */
 
 import * as sinon from 'sinon';
-import { containerDoubles } from '../../test/doubles';
-import { addSpecsForCanLoadModule } from '../../test/moduleLoaders';
-import FactoryServiceLoader from './FactoryServiceLoader';
+import { containerDoubles } from '../../../test/doubles';
+import { addSpecsForCanLoadModule } from '../../../test/moduleLoaders';
+import FactoryServiceLoader from '../FactoryServiceLoader';
 
 describe('FactoryServiceLoader', () => {
 

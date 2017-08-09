@@ -1,10 +1,10 @@
 /* eslint no-unused-expressions: 0 */
 /* eslint-env mocha */
 
-import { _ } from '../globals';
+import { _ } from '../../globals';
 import * as sinon from 'sinon';
-import { addSpecsForCanInitialiseIfInitEquals } from '../../test/initialisers';
-import PartialInitialiser from './PartialInitialiser';
+import { addSpecsForCanInitialiseIfInitEquals } from '../../../test/initialisers';
+import PartialInitialiser from '../PartialInitialiser';
 
 describe('PartialInitialiser', () => {
 

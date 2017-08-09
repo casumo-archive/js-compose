@@ -2,10 +2,10 @@
 /* eslint-env mocha */
 
 import * as sinon from 'sinon';
-import { containerDoubles } from '../../test/doubles';
-import { addSpecsForCanResolveArgMatchingPrefix } from '../../test/argResolvers';
-import { addSpecsForCanHandleExtraWithProperty } from '../../test/extraHandlers';
-import PubSubExtension from './PubSubExtension';
+import { containerDoubles } from '../../../test/doubles';
+import { addSpecsForCanResolveArgMatchingPrefix } from '../../../test/argResolvers';
+import { addSpecsForCanHandleExtraWithProperty } from '../../../test/extraHandlers';
+import PubSubExtension from '../PubSubExtension';
 
 describe('PubSubExtension', () => {
 

@@ -1,9 +1,10 @@
 /* eslint no-unused-expressions: 0, max-nested-callbacks: 0 */
 /* eslint-env mocha */
 
-import { containerDoubles } from '../../test/doubles';
-import { addSpecsForCanLoadModule } from '../../test/moduleLoaders';
-import CommonJSModuleLoader from './CommonJSModuleLoader';
+import path from 'path';
+import { containerDoubles } from '../../../test/doubles';
+import { addSpecsForCanLoadModule } from '../../../test/moduleLoaders';
+import CommonJSModuleLoader from '../CommonJSModuleLoader';
 
 describe('CommonJSModuleLoader', () => {
 
@@ -11,7 +12,7 @@ describe('CommonJSModuleLoader', () => {
 
     beforeEach(() => {
         loader = new CommonJSModuleLoader(
-            require.context('../', true)
+            require.context('../../', true)
         );
     });
 
@@ -27,7 +28,7 @@ describe('CommonJSModuleLoader', () => {
                 }
             });
 
-            const expected = require('./CommonJSModuleLoader');
+            const expected = require('../CommonJSModuleLoader');
 
             return loader.loadModule(extensionApi).should.eventually.equal(expected);
 
@@ -41,7 +42,7 @@ describe('CommonJSModuleLoader', () => {
                 }
             });
 
-            const expected = require('./CommonJSModuleLoader').default;
+            const expected = require('../CommonJSModuleLoader').default;
 
             return loader.loadModule(extensionApi).should.eventually.equal(expected);
 

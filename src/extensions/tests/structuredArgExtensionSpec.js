@@ -1,12 +1,12 @@
 /* eslint no-unused-expressions: 0, max-nested-callbacks: 0 */
 /* eslint-env mocha */
 
-import { _, Promise } from '../globals';
+import { _, Promise } from '../../globals';
 import * as sinon from 'sinon';
-import { containerDoubles } from '../../test/doubles';
-import { addSpecsForCanLoadModule } from '../../test/moduleLoaders';
-import { addSpecsForCanInitialiseWithProperty } from '../../test/initialisers';
-import StructuredArgExtension from './StructuredArgExtension';
+import { containerDoubles } from '../../../test/doubles';
+import { addSpecsForCanLoadModule } from '../../../test/moduleLoaders';
+import { addSpecsForCanInitialiseWithProperty } from '../../../test/initialisers';
+import StructuredArgExtension from '../StructuredArgExtension';
 
 describe('StructuredArgExtension', () => {
 
