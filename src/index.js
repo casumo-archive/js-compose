@@ -15,3 +15,4 @@ export { default as ReturnInitialiser } from './extensions/ReturnInitialiser';
 export { default as ServiceArgResolver } from './extensions/ServiceArgResolver';
 export { default as StructuredArgExtension } from './extensions/StructuredArgExtension';
 export { default as SubscriptionManagerExtension } from './extensions/SubscriptionManagerExtension';
+export { configure } from './globals';
