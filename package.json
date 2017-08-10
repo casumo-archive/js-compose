@@ -25,5 +25,8 @@
     "sinon-chai": "^2.10.0",
     "source-map-support": "^0.4.15",
     "webpack": "^2.5.1"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.0"
   }
 }

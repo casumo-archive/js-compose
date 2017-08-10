@@ -4,15 +4,21 @@
  * consumers to decide. This makes dependency management a lot easier but comes
  * with some risks which can be allieviated with unit tests.
  */
+import lodash from 'lodash';
+import bluebird from 'bluebird';
 
-export let _;
+export let _ = lodash;
+export let Promise = bluebird;
 
-export let Promise;
-
-export function configure (
+export function configure ({
     underscoreModule,
     PromiseConstructor
-) {
-    _ = underscoreModule;
-    Promise = PromiseConstructor;
+}) {
+    if (underscoreModule) {
+        _ = underscoreModule;
+    }
+
+    if (PromiseConstructor) {
+        Promise = PromiseConstructor;
+    }
 }
