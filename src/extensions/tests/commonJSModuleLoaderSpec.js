@@ -11,38 +11,36 @@ describe('CommonJSModuleLoader', () => {
     let loader;
 
     beforeEach(() => {
-        loader = new CommonJSModuleLoader(
-            require.context('../../', true)
-        );
+        loader = new CommonJSModuleLoader();
     });
 
-    addSpecsForCanLoadModule('commonJS', () => loader);
+    addSpecsForCanLoadModule('module', () => loader);
 
     describe('loadModule', () => {
 
         it('should return a promise for the module in the definition', () => {
 
+            const module = require('../CommonJSModuleLoader');
             const extensionApi = containerDoubles.extensionApi({
                 serviceDefinition: {
-                    commonJS: 'extensions/CommonJSModuleLoader'
+                    module
                 }
             });
 
-            const expected = require('../CommonJSModuleLoader');
-
-            return loader.loadModule(extensionApi).should.eventually.equal(expected);
+            return loader.loadModule(extensionApi).should.eventually.equal(module);
 
         });
 
-        it('should support dot notation to return a specific export from the module', () => {
+        it('should support property attribute to return a specific export from the module', () => {
 
+            const module = require('../CommonJSModuleLoader');
+            const expected = module.default;
             const extensionApi = containerDoubles.extensionApi({
                 serviceDefinition: {
-                    commonJS: 'extensions/CommonJSModuleLoader.default'
+                    module,
+                    property: 'default'
                 }
             });
-
-            const expected = require('../CommonJSModuleLoader').default;
 
             return loader.loadModule(extensionApi).should.eventually.equal(expected);
 

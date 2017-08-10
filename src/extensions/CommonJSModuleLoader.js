@@ -10,16 +10,15 @@ export default class CommonJSModuleLoader {
     }
 
     canLoadModule (extensionApi) {
-        return !!extensionApi.serviceDefinition.commonJS;
+        return !!extensionApi.serviceDefinition.module;
     }
 
     loadModule (extensionApi) {
 
-        const [modulePath, exportName] = extensionApi.serviceDefinition.commonJS.split('.');
-        const requiredModule = this.require(`./${modulePath}`);
+        const module = extensionApi.serviceDefinition.module;
+        const property = extensionApi.serviceDefinition.property;
 
-        return Promise.resolve(exportName ? requiredModule[exportName] : requiredModule);
-
+        return Promise.resolve(property ? module[property] : module);
     }
 
 }
