@@ -1,11 +1,11 @@
 /* eslint no-unused-expressions: 0, max-nested-callbacks: 0 */
 /* eslint-env mocha */
 
-import { _ } from '../globals';
-import { containerDoubles } from '../../test/doubles';
-import { addSpecsForCanLoadModule } from '../../test/moduleLoaders';
-import { addSpecsForCanInitialiseWithProperty } from '../../test/initialisers';
-import AliasExtension from './AliasExtension';
+import { _ } from '../../globals';
+import { containerDoubles } from '../../../test/doubles';
+import { addSpecsForCanLoadModule } from '../../../test/moduleLoaders';
+import { addSpecsForCanInitialiseWithProperty } from '../../../test/initialisers';
+import AliasExtension from '../AliasExtension';
 
 describe('AliasExtension', () => {
 

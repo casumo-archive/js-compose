@@ -1,9 +1,9 @@
 /* eslint no-unused-expressions: 0, max-nested-callbacks: 0 */
 /* eslint-env mocha */
 
-import { containerDoubles } from '../../test/doubles';
-import { addSpecsForCanResolveArgMatchingPrefix } from '../../test/argResolvers';
-import DeferredArgResolver from './DeferredArgResolver';
+import { containerDoubles } from '../../../test/doubles';
+import { addSpecsForCanResolveArgMatchingPrefix } from '../../../test/argResolvers';
+import DeferredArgResolver from '../DeferredArgResolver';
 
 describe('DeferredArgResolver', () => {
 

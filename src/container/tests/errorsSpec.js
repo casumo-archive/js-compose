@@ -1,7 +1,7 @@
 /* eslint no-unused-expressions: 0 */
 /* eslint-env mocha */
 
-import { ArgError, ServiceError } from './errors';
+import { ArgError, ServiceError } from '../errors';
 
 describe('ServiceError', () => {
 

@@ -1,10 +1,10 @@
 /* eslint no-unused-expressions: 0 */
 /* eslint-env mocha */
 
-import * as sinon from 'sinon';
-import { containerDoubles } from '../../test/doubles';
-import { ArgError } from './errors';
-import ExtensionApi from './ExtensionApi';
+import sinon from 'sinon';
+import { containerDoubles } from '../../../test/doubles';
+import { ArgError } from '../errors';
+import ExtensionApi from '../ExtensionApi';
 
 describe('ExtensionApi', () => {
 

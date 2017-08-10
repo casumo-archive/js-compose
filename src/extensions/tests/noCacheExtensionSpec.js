@@ -1,8 +1,8 @@
 /* eslint no-unused-expressions: 0, max-nested-callbacks: 0 */
 /* eslint-env mocha */
 
-import { containerDoubles } from '../../test/doubles';
-import NoCacheExtension from './NoCacheExtension';
+import { containerDoubles } from '../../../test/doubles';
+import NoCacheExtension from '../NoCacheExtension';
 
 describe('NoCacheExtension', () => {
 

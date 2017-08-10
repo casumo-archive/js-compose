@@ -1,13 +1,12 @@
 /* eslint no-unused-expressions: 0 */
 /* eslint-env mocha */
 
-import { _, Promise } from '../globals';
-import * as sinon from 'sinon';
-import { containerDoubles } from '../../test/doubles';
-import Container from './Container';
-import { defaultInitialiser } from './Container';
-import ExtensionApi from './ExtensionApi';
-import { ServiceError } from './errors';
+import sinon from 'sinon';
+import { _, Promise } from '../../globals';
+import { containerDoubles } from '../../../test/doubles';
+import Container, { defaultInitialiser } from '../Container';
+import ExtensionApi from '../ExtensionApi';
+import { ServiceError } from '../errors';
 
 let definition;
 let moduleLoader;

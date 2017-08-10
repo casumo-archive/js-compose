@@ -12,8 +12,8 @@ A dependency injection container library using a plain javascript object DSL for
 Most of the work of a js-compose container is done by extensions. Some terminology has been introduced to capture certain roles that extensions can play in the definition and creation of a service.
 
 - Loader, or Module Loader
-- Arg Resolver 
-- Initialiser 
+- Arg Resolver
+- Initialiser
 - Extra Handler
 
 **Loaders** are responsible for retrieving the primitive that will be used as a base to initialise the service, most typically a `Function`, but potentially anything.

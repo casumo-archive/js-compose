@@ -2,7 +2,7 @@
   "name": "js-compose",
   "version": "1.0.0",
   "description": "Dependency injection container with plain object dsl",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "dist": "babel src --out-dir dist",
     "test": "mocha-webpack --webpack-config webpack.config-test.js --require source-map-support/register ./test/test-main.js"

@@ -2,8 +2,8 @@
 /* eslint-env mocha */
 
 import { expect } from 'chai';
-import { containerDoubles } from '../../test/doubles';
-import ES6ModuleLoaderDecorator from './ES6ModuleLoaderDecorator';
+import { containerDoubles } from '../../../test/doubles';
+import ES6ModuleLoaderDecorator from '../ES6ModuleLoaderDecorator';
 
 describe('ES6ModuleLoaderDecorator', () => {
 

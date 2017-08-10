@@ -1,10 +1,10 @@
 /* eslint no-unused-expressions: 0 */
 /* eslint-env mocha */
 
-import { _ } from '../globals';
-import * as sinon from 'sinon';
-import { addSpecsForCanInitialiseIfInitEquals } from '../../test/initialisers';
-import ReturnInitialiser from './ReturnInitialiser';
+import sinon from 'sinon';
+import { _ } from '../../globals';
+import { addSpecsForCanInitialiseIfInitEquals } from '../../../test/initialisers';
+import ReturnInitialiser from '../ReturnInitialiser';
 
 describe('ReturnInitialiser', () => {
 
