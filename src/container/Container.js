@@ -49,9 +49,7 @@ function get (id) {
         const args = definition.args || [];
         const promises = getPromises(args, moduleLoader, extensionApi);
 
-        const initialiser = _.find(self.initialisers, (initialiser) => {
-            return initialiser.canInitialise(extensionApi);
-        });
+        const initialiser = getInitialiser(self.initialisers, extensionApi);
 
         if (!initialiser) {
             throw new Error('No initialiser');
@@ -232,6 +230,12 @@ function getHandlersForExtraDefinition (extraDefinition, extraHandlers, extensio
 function getModuleLoader (moduleLoaders, extensionApi) {
     return _.find(moduleLoaders, moduleLoader => {
         return moduleLoader.canLoadModule(extensionApi);
+    });
+}
+
+function getInitialiser (initialisers, extensionApi) {
+    return _.find(initialisers, initialiser => {
+        return initialiser.canInitialise(extensionApi);
     });
 }
 
