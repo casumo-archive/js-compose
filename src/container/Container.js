@@ -42,19 +42,7 @@ function get (id) {
             throw new Error(`Circular dependency detected: ${self.chain.concat(id).join(', ')}`);
         }
 
-        mappedExtraHandlers = _.map(definition.extras || [], (extraDefinition) => {
-
-            const handler = _.find(self.extraHandlers, (extraHandler) => {
-                return extraHandler.canHandleExtra(extraDefinition, extensionApi);
-            });
-
-            if (!handler) {
-                throw new Error(`No extra handler for ${extraDefinition}`);
-            }
-
-            return handler;
-
-        });
+        mappedExtraHandlers = getMappedExtraHandlers(definition.extras, self.extraHandlers, extensionApi);
 
         const moduleLoader = _.find(self.moduleLoaders, (moduleLoader) => {
             return moduleLoader.canLoadModule(extensionApi);
@@ -225,5 +213,23 @@ export function defaultInitialiser (initialiser) {
 
             return initialiser.canInitialise(extensionApi);
         }
+    });
+}
+
+function getMappedExtraHandlers (extraDefinitions = [], extraHandlers, extensionApi) {
+    return _.map(extraDefinitions, extraDefinition => {
+        const handler = getHandlersForExtraDefinition(extraDefinition, extraHandlers, extensionApi);
+
+        if (!handler) {
+            throw new Error(`No extra handler for ${extraDefinition}`);
+        }
+
+        return handler;
+    });
+}
+
+function getHandlersForExtraDefinition (extraDefinition, extraHandlers, extensionApi) {
+    return _.find(extraHandlers, extraHandler => {
+        return extraHandler.canHandleExtra(extraDefinition, extensionApi);
     });
 }
