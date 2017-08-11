@@ -67,11 +67,7 @@ function get (serviceId) {
         throw new ServiceError(serviceId, error);
     });
 
-    _.each(extraHandlers, (handler, extraIndex) => {
-        if (handler.onGetComplete) {
-            handler.onGetComplete(serviceDefinition.extras[extraIndex], extensionApi);
-        }
-    });
+    runOnGetCompleteCallbacks(extraHandlers, serviceDefinition, extensionApi);
 
     return output;
 }
@@ -258,4 +254,17 @@ function runOnInitialisedCallbacks (instance, extraHandlers, extraDefinitions, e
     return Promise
         .all(promises)
         .then(() => instance);
+}
+
+function runOnGetCompleteCallbacks (extraHandlers, serviceDefinition, extensionApi) {
+    _.each(extraHandlers, (handler, index) => {
+        const callback = handler.onGetComplete;
+
+        if (callback) {
+            callback(
+                serviceDefinition.extras[index],
+                extensionApi
+            );
+        }
+    });
 }
