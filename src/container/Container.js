@@ -26,7 +26,7 @@ function get (serviceId) {
     const self = this;
     const serviceDefinition = self.config.services[serviceId];
     const extensionApi = new ExtensionApi(self, serviceId, serviceDefinition);
-    let mappedExtraHandlers;
+    let extraHandlers;
 
     const output = self.cache[serviceId] || new Promise((resolve) => {
 
@@ -35,10 +35,10 @@ function get (serviceId) {
         }
 
         if (countOccurrencesInArray(self.chain, serviceId) > 1) {
-            throw new Error(`Circular dependency detected: ${self.chain.concat(serviceId).join(', ')}`);
+            throw new Error(`Circular dependency detected: ${ self.chain.concat(serviceId).join(', ')}` );
         }
 
-        mappedExtraHandlers = getMappedExtraHandlers(serviceDefinition.extras, self.extraHandlers, extensionApi);
+        extraHandlers = getExtraHandlers(serviceDefinition.extras, self.extraHandlers, extensionApi);
 
         const moduleLoader = getModuleLoader(self.moduleLoaders, extensionApi);
 
@@ -58,14 +58,14 @@ function get (serviceId) {
 
         self.cache[serviceId] = Promise
             .all(promises)
-            .then(contents => afterInitialised(contents, mappedExtraHandlers, serviceDefinition.extras, extensionApi))
+            .then(contents => afterInitialised(contents, extraHandlers, serviceDefinition.extras, extensionApi))
             .then(contents => {
 
             return initialiser.initialise(
                 // eslint-disable-next-line prefer-arrow-callback
                 function instanceCreatedCallback (instance) {
 
-                    mappedExtraHandlers.forEach((handler, extraIndex) => {
+                    extraHandlers.forEach((handler, extraIndex) => {
 
                         if (handler.onServiceInstanceCreated) {
 
@@ -85,7 +85,7 @@ function get (serviceId) {
 
         }).then((instance) => {
 
-            const initialisedPromises = _.map(mappedExtraHandlers, (handler, extraIndex) => {
+            const initialisedPromises = _.map(extraHandlers, (handler, extraIndex) => {
                 if (handler.onServiceInitialised) {
                     return handler.onServiceInitialised(
                         instance,
@@ -107,7 +107,7 @@ function get (serviceId) {
         throw new ServiceError(serviceId, error);
     });
 
-    _.each(mappedExtraHandlers, (handler, extraIndex) => {
+    _.each(extraHandlers, (handler, extraIndex) => {
         if (handler.onGetComplete) {
             handler.onGetComplete(serviceDefinition.extras[extraIndex], extensionApi);
         }
@@ -203,7 +203,7 @@ function countOccurrencesInArray (array, item) {
         .length;
 }
 
-function getMappedExtraHandlers (extraDefinitions = [], extraHandlers, extensionApi) {
+function getExtraHandlers (extraDefinitions = [], extraHandlers, extensionApi) {
     return _.map(extraDefinitions, extraDefinition => {
         const handler = getHandlersForExtraDefinition(extraDefinition, extraHandlers, extensionApi);
 
