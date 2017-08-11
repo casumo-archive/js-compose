@@ -17,28 +17,28 @@ export default function Container (extensions, config) {
 }
 
 /**
- * @param {String} id
+ * @param {String} serviceId
  *
  * @return {Promise}
  */
-function get (id) {
+function get (serviceId) {
 
     const self = this;
-    const definition = self.config.services[id];
+    const serviceDefinition = self.config.services[serviceId];
+    const extensionApi = new ExtensionApi(self, serviceId, serviceDefinition);
     let mappedExtraHandlers;
-    const extensionApi = new ExtensionApi(self, id, definition);
 
-    const output = self.cache[id] || new Promise((resolve) => {
+    const output = self.cache[serviceId] || new Promise((resolve) => {
 
-        if (!definition) {
-            throw new Error('Missing definition');
+        if (!serviceDefinition) {
+            throw new Error(`Missing service definition for ${ serviceId }`);
         }
 
-        if (countOccurrences(self.chain, id) > 1) {
-            throw new Error(`Circular dependency detected: ${self.chain.concat(id).join(', ')}`);
+        if (countOccurrences(self.chain, serviceId) > 1) {
+            throw new Error(`Circular dependency detected: ${self.chain.concat(serviceId).join(', ')}`);
         }
 
-        mappedExtraHandlers = getMappedExtraHandlers(definition.extras, self.extraHandlers, extensionApi);
+        mappedExtraHandlers = getMappedExtraHandlers(serviceDefinition.extras, self.extraHandlers, extensionApi);
 
         const moduleLoader = getModuleLoader(self.moduleLoaders, extensionApi);
 
@@ -46,7 +46,7 @@ function get (id) {
             throw new Error('No module loader');
         }
 
-        const args = definition.args || [];
+        const args = serviceDefinition.args || [];
         const promises = getPromises(args, moduleLoader, extensionApi);
 
         const initialiser = getInitialiser(self.initialisers, extensionApi);
@@ -56,9 +56,9 @@ function get (id) {
         }
 
 
-        self.cache[id] = Promise
+        self.cache[serviceId] = Promise
             .all(promises)
-            .then(contents => afterInitialised(contents, mappedExtraHandlers, definition.extras, extensionApi))
+            .then(contents => afterInitialised(contents, mappedExtraHandlers, serviceDefinition.extras, extensionApi))
             .then(contents => {
 
             return initialiser.initialise(
@@ -71,7 +71,7 @@ function get (id) {
 
                             handler.onServiceInstanceCreated(
                                 instance,
-                                definition.extras[extraIndex],
+                                serviceDefinition.extras[extraIndex],
                                 extensionApi
                             );
 
@@ -89,7 +89,7 @@ function get (id) {
                 if (handler.onServiceInitialised) {
                     return handler.onServiceInitialised(
                         instance,
-                        definition.extras[extraIndex],
+                        serviceDefinition.extras[extraIndex],
                         extensionApi
                     );
                 }
@@ -101,15 +101,15 @@ function get (id) {
 
         });
 
-        resolve(self.cache[id]);
+        resolve(self.cache[serviceId]);
 
     }).then(null, (error) => {
-        throw new ServiceError(id, error);
+        throw new ServiceError(serviceId, error);
     });
 
     _.each(mappedExtraHandlers, (handler, extraIndex) => {
         if (handler.onGetComplete) {
-            handler.onGetComplete(definition.extras[extraIndex], extensionApi);
+            handler.onGetComplete(serviceDefinition.extras[extraIndex], extensionApi);
         }
     });
 
