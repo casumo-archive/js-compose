@@ -79,7 +79,7 @@ function get (serviceId) {
 
         resolve(self.cache[serviceId]);
 
-    }).then(null, (error) => {
+    }).catch(error => {
         throw new ServiceError(serviceId, error);
     });
 
