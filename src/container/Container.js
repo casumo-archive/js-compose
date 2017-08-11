@@ -57,7 +57,7 @@ function get (serviceId) {
 
         self.cache[serviceId] = Promise
             .all(serviceAndArgPromises)
-            .then(serviceAndArgs => afterInitialised(serviceAndArgs, extraHandlers, serviceDefinition.extras, extensionApi))
+            .then(serviceAndArgs => runBeforeInitialisedCallbacks(serviceAndArgs, extraHandlers, serviceDefinition.extras, extensionApi))
             .then(serviceAndArgs => initialiseService(serviceAndArgs, initialiser, extraHandlers, serviceDefinition.extras, extensionApi))
             .then(instance => runOnInitialisedCallbacks(instance, extraHandlers, serviceDefinition.extras, extensionApi));
 
@@ -202,15 +202,20 @@ function getServiceAndArgPromises (args, moduleLoader, extensionApi) {
     return promises;
 }
 
-function afterInitialised (contents, mappedExtraHandlers, extraHandlers, extensionApi) {
-    const initialisedPromises = _.map(mappedExtraHandlers, (handler, extraIndex) => {
-        if (handler.beforeServiceInitialised) {
-            return handler.beforeServiceInitialised(extraHandlers[extraIndex], extensionApi);
+function runBeforeInitialisedCallbacks (contents, extraHandlers, extraDefinitions, extensionApi) {
+    const promises = _.map(extraHandlers, (handler, index) => {
+        const callback = handler.beforeServiceInitialised;
+
+        if (callback) {
+            return callback(
+                extraDefinitions[index],
+                extensionApi
+            );
         }
     });
 
     return Promise
-        .all(initialisedPromises)
+        .all(promises)
         .then(() => contents);
 }
 
@@ -219,13 +224,13 @@ function initialiseService (serviceAndArgs, initialiser, extraHandlers, extraDef
         // eslint-disable-next-line prefer-arrow-callback
         function instanceCreatedCallback (instance) {
 
-            extraHandlers.forEach((handler, extraIndex) => {
+            extraHandlers.forEach((handler, index) => {
 
                 if (handler.onServiceInstanceCreated) {
 
                     handler.onServiceInstanceCreated(
                         instance,
-                        extraDefinitions[extraIndex],
+                        extraDefinitions[index],
                         extensionApi
                     );
                 }
