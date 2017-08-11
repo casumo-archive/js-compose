@@ -55,19 +55,11 @@ function get (id) {
             throw new Error('No initialiser');
         }
 
-        self.cache[id] = Promise.all(promises).then((contents) => {
 
-            const initialisedPromises = _.map(mappedExtraHandlers, (handler, extraIndex) => {
-                if (handler.beforeServiceInitialised) {
-                    return handler.beforeServiceInitialised(definition.extras[extraIndex], extensionApi);
-                }
-            });
-
-            return Promise.all(initialisedPromises).then(() => {
-                return contents;
-            });
-
-        }).then((contents) => {
+        self.cache[id] = Promise
+            .all(promises)
+            .then(contents => afterInitialised(contents, mappedExtraHandlers, definition.extras, extensionApi))
+            .then(contents => {
 
             return initialiser.initialise(
                 // eslint-disable-next-line prefer-arrow-callback
@@ -246,4 +238,16 @@ function getPromises (args, moduleLoader, extensionApi) {
     promises.unshift(modulePromise);
 
     return promises;
+}
+
+function afterInitialised (contents, mappedExtraHandlers, extraHandlers, extensionApi) {
+    const initialisedPromises = _.map(mappedExtraHandlers, (handler, extraIndex) => {
+        if (handler.beforeServiceInitialised) {
+            return handler.beforeServiceInitialised(extraHandlers[extraIndex], extensionApi);
+        }
+    });
+
+    return Promise
+        .all(initialisedPromises)
+        .then(() => contents);
 }
