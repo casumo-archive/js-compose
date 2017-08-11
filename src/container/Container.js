@@ -2,10 +2,6 @@ import { _, Promise } from '../globals';
 import ExtensionApi from './ExtensionApi';
 import { ServiceError } from './errors';
 
-function countOccurrences (array, item) {
-    return array.filter(_.isEqual.bind(_, item)).length;
-}
-
 export default function Container (extensions, config) {
     return {
         moduleLoaders: _.filter(extensions, 'canLoadModule'),
@@ -214,6 +210,10 @@ export function defaultInitialiser (initialiser) {
             return initialiser.canInitialise(extensionApi);
         }
     });
+}
+
+function countOccurrences (array, item) {
+    return array.filter(_.isEqual.bind(_, item)).length;
 }
 
 function getMappedExtraHandlers (extraDefinitions = [], extraHandlers, extensionApi) {
