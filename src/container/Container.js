@@ -59,23 +59,7 @@ function get (serviceId) {
             .all(serviceAndArgPromises)
             .then(serviceAndArgs => afterInitialised(serviceAndArgs, extraHandlers, serviceDefinition.extras, extensionApi))
             .then(serviceAndArgs => initialiseService(serviceAndArgs, initialiser, extraHandlers, serviceDefinition.extras, extensionApi))
-            .then(instance => {
-
-            const initialisedPromises = _.map(extraHandlers, (handler, extraIndex) => {
-                if (handler.onServiceInitialised) {
-                    return handler.onServiceInitialised(
-                        instance,
-                        serviceDefinition.extras[extraIndex],
-                        extensionApi
-                    );
-                }
-            });
-
-            return Promise.all(initialisedPromises).then(() => {
-                return instance;
-            });
-
-        });
+            .then(instance => runOnInitialisedCallbacks(instance, extraHandlers, serviceDefinition.extras, extensionApi));
 
         resolve(self.cache[serviceId]);
 
@@ -251,4 +235,22 @@ function initialiseService (serviceAndArgs, initialiser, extraHandlers, extraDef
         },
         ...serviceAndArgs
     );
+}
+
+function runOnInitialisedCallbacks (instance, extraHandlers, extraDefinitions, extensionApi) {
+    const promises = _.map(extraHandlers, (handler, extraIndex) => {
+        const callback = handler.onServiceInitialised;
+
+        if (callback) {
+            return callback(
+                instance,
+                extraDefinitions[extraIndex],
+                extensionApi
+            );
+        }
+    });
+
+    return Promise
+        .all(promises)
+        .then(() => instance);
 }
