@@ -2,18 +2,31 @@
 /* eslint-env mocha */
 
 import sinon from 'sinon';
+import _ from 'lodash';
 import { containerDoubles } from '../../../test/doubles';
 import { ArgError } from '../errors';
 import ExtensionApi from '../ExtensionApi';
 
 describe('ExtensionApi', () => {
+    let container;
+    let serviceId;
+    let serviceDefinition;
+    let extensionApi;
+
+    beforeEach(() => {
+        container = containerDoubles.container();
+        serviceId = 'foo';
+        serviceDefinition = {};
+        extensionApi = new ExtensionApi(container, serviceId, serviceDefinition);
+    });
 
     it('exposes a container with an extended chain', () => {
+        extensionApi.container.chain.should.deep.equal([serviceId]);
+    });
 
-        const extensionApi = new ExtensionApi({ chain: [] }, 'foo', {});
-
-        extensionApi.container.chain.should.deep.equal(['foo']);
-
+    it('exposes a the methods of the container', () => {
+        _.isUndefined(extensionApi.container.get).should.be.false;
+        _.isUndefined(extensionApi.container.lint).should.be.false;
     });
 
     describe('getArgResolver', () => {
@@ -23,24 +36,20 @@ describe('ExtensionApi', () => {
             const argResolver1 = containerDoubles.argResolver();
             const argResolver2 = containerDoubles.argResolver();
 
-            const container = containerDoubles.container({
+            container = containerDoubles.container({
                 argResolvers: [argResolver1, argResolver2]
             });
 
-            const extensionApi = new ExtensionApi(container, 'foo', {});
+            extensionApi = new ExtensionApi(container, serviceId, serviceDefinition);
 
             argResolver1.canResolveArg.returns(false);
-            argResolver2.canResolveArg.withArgs('foo').returns(true);
+            argResolver2.canResolveArg.withArgs(serviceId).returns(true);
 
-            extensionApi.getArgResolver('foo').should.equal(argResolver2);
+            extensionApi.getArgResolver(serviceId).should.equal(argResolver2);
 
         });
 
         it('should throw an error if there is no arg resolver for an arg', () => {
-
-            const container = containerDoubles.container();
-
-            const extensionApi = new ExtensionApi(container, 'foo', {});
 
             (() => extensionApi.getArgResolver('foo')).should.throw(Error);
 
@@ -52,40 +61,36 @@ describe('ExtensionApi', () => {
 
         it('should return a promise for the resolved arg from the arg resolver', () => {
 
-            const extensionApi = new ExtensionApi(containerDoubles.container(), 'foo', {});
             const argResolver = containerDoubles.argResolver();
 
             sinon.stub(extensionApi, 'getArgResolver');
-            extensionApi.getArgResolver.withArgs('foo').returns(argResolver);
+            extensionApi.getArgResolver.withArgs(serviceId).returns(argResolver);
 
-            argResolver.resolveArg.withArgs('foo', extensionApi).resolves('bar');
+            argResolver.resolveArg.withArgs(serviceId, extensionApi).resolves('bar');
 
-            return extensionApi.resolveArg('foo').should.eventually.equal('bar');
+            return extensionApi.resolveArg(serviceId).should.eventually.equal('bar');
 
         });
 
         it('should return a promise rejected with ArgError if there is no arg resolver', () => {
 
-            const extensionApi = new ExtensionApi(containerDoubles.container(), 'foo', {});
-
             sinon.stub(extensionApi, 'getArgResolver');
             extensionApi.getArgResolver.throws();
 
-            return extensionApi.resolveArg('foo').should.be.rejectedWith(ArgError);
+            return extensionApi.resolveArg(serviceId).should.be.rejectedWith(ArgError);
 
         });
 
         it('should return a promise rejected with ArgError if arg resolver rejects', () => {
 
             const argResolver = containerDoubles.argResolver();
-            const extensionApi = new ExtensionApi(containerDoubles.container(), 'foo', {});
 
             sinon.stub(extensionApi, 'getArgResolver');
             extensionApi.getArgResolver.returns(argResolver);
 
-            argResolver.resolveArg.withArgs('foo', extensionApi).rejects(new Error('foo error'));
+            argResolver.resolveArg.withArgs(serviceId, extensionApi).rejects(new Error('foo error'));
 
-            return extensionApi.resolveArg('foo').should.be.rejectedWith(ArgError);
+            return extensionApi.resolveArg(serviceId).should.be.rejectedWith(ArgError);
 
         });
 
@@ -94,8 +99,6 @@ describe('ExtensionApi', () => {
     describe('resolveArgs', () => {
 
         it('should return an array of resolved args', () => {
-
-            const extensionApi = new ExtensionApi(containerDoubles.container(), 'foo', {});
 
             sinon.stub(extensionApi, 'resolveArg');
 
