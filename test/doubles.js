@@ -15,7 +15,8 @@ export const containerDoubles = {
                 services: {},
                 params: {}
             },
-            get (serviceId) {}
+            get (serviceId) {},
+            lint () {}
         });
     },
 
