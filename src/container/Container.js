@@ -40,9 +40,7 @@ function get (id) {
 
         mappedExtraHandlers = getMappedExtraHandlers(definition.extras, self.extraHandlers, extensionApi);
 
-        const moduleLoader = _.find(self.moduleLoaders, (moduleLoader) => {
-            return moduleLoader.canLoadModule(extensionApi);
-        });
+        const moduleLoader = getModuleLoader(self.moduleLoaders, extensionApi);
 
         if (!moduleLoader) {
             throw new Error('No module loader');
@@ -139,9 +137,7 @@ function lint () {
         const errors = [];
         const extensionApi = new ExtensionApi(this, serviceId, serviceDefinition);
 
-        const moduleLoader = _.find(this.moduleLoaders, (moduleLoader) => {
-            return moduleLoader.canLoadModule(extensionApi);
-        });
+        const moduleLoader = getModuleLoader(this.moduleLoaders, extensionApi);
 
         if (!moduleLoader) {
             errors.push(`Missing module loader for ${serviceId}`);
@@ -231,5 +227,11 @@ function getMappedExtraHandlers (extraDefinitions = [], extraHandlers, extension
 function getHandlersForExtraDefinition (extraDefinition, extraHandlers, extensionApi) {
     return _.find(extraHandlers, extraHandler => {
         return extraHandler.canHandleExtra(extraDefinition, extensionApi);
+    });
+}
+
+function getModuleLoader (moduleLoaders, extensionApi) {
+    return _.find(moduleLoaders, moduleLoader => {
+        return moduleLoader.canLoadModule(extensionApi);
     });
 }
