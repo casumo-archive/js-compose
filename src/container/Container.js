@@ -46,44 +46,20 @@ function get (serviceId) {
             throw new Error('No module loader');
         }
 
-        const args = serviceDefinition.args || [];
-        const promises = getPromises(args, moduleLoader, extensionApi);
-
         const initialiser = getInitialiser(self.initialisers, extensionApi);
 
         if (!initialiser) {
             throw new Error('No initialiser');
         }
 
+        const args = serviceDefinition.args || [];
+        const serviceAndArgPromises = getServiceAndArgPromises(args, moduleLoader, extensionApi);
 
         self.cache[serviceId] = Promise
-            .all(promises)
-            .then(contents => afterInitialised(contents, extraHandlers, serviceDefinition.extras, extensionApi))
-            .then(contents => {
-
-            return initialiser.initialise(
-                // eslint-disable-next-line prefer-arrow-callback
-                function instanceCreatedCallback (instance) {
-
-                    extraHandlers.forEach((handler, extraIndex) => {
-
-                        if (handler.onServiceInstanceCreated) {
-
-                            handler.onServiceInstanceCreated(
-                                instance,
-                                serviceDefinition.extras[extraIndex],
-                                extensionApi
-                            );
-
-                        }
-
-                    });
-
-                },
-                ...contents
-            );
-
-        }).then((instance) => {
+            .all(serviceAndArgPromises)
+            .then(serviceAndArgs => afterInitialised(serviceAndArgs, extraHandlers, serviceDefinition.extras, extensionApi))
+            .then(serviceAndArgs => initialiseService(serviceAndArgs, initialiser, extraHandlers, serviceDefinition.extras, extensionApi))
+            .then(instance => {
 
             const initialisedPromises = _.map(extraHandlers, (handler, extraIndex) => {
                 if (handler.onServiceInitialised) {
@@ -233,7 +209,7 @@ function getInitialiser (initialisers, extensionApi) {
     });
 }
 
-function getPromises (args, moduleLoader, extensionApi) {
+function getServiceAndArgPromises (args, moduleLoader, extensionApi) {
     const modulePromise = moduleLoader.loadModule(extensionApi);
     const promises = extensionApi.resolveArgs(args);
 
@@ -252,4 +228,27 @@ function afterInitialised (contents, mappedExtraHandlers, extraHandlers, extensi
     return Promise
         .all(initialisedPromises)
         .then(() => contents);
+}
+
+function initialiseService (serviceAndArgs, initialiser, extraHandlers, extraDefinitions, extensionApi) {
+    return initialiser.initialise(
+        // eslint-disable-next-line prefer-arrow-callback
+        function instanceCreatedCallback (instance) {
+
+            extraHandlers.forEach((handler, extraIndex) => {
+
+                if (handler.onServiceInstanceCreated) {
+
+                    handler.onServiceInstanceCreated(
+                        instance,
+                        extraDefinitions[extraIndex],
+                        extensionApi
+                    );
+                }
+
+            });
+
+        },
+        ...serviceAndArgs
+    );
 }
