@@ -34,7 +34,7 @@ function get (serviceId) {
             throw new Error(`Missing service definition for ${ serviceId }`);
         }
 
-        if (countOccurrences(self.chain, serviceId) > 1) {
+        if (countOccurrencesInArray(self.chain, serviceId) > 1) {
             throw new Error(`Circular dependency detected: ${self.chain.concat(serviceId).join(', ')}`);
         }
 
@@ -197,8 +197,10 @@ export function defaultInitialiser (initialiser) {
     });
 }
 
-function countOccurrences (array, item) {
-    return array.filter(_.isEqual.bind(_, item)).length;
+function countOccurrencesInArray (array, item) {
+    return array
+        .filter(arrayItem => _.isEqual(arrayItem, item))
+        .length;
 }
 
 function getMappedExtraHandlers (extraDefinitions = [], extraHandlers, extensionApi) {
