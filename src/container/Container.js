@@ -26,9 +26,14 @@ function get (serviceId) {
     const self = this;
     const serviceDefinition = self.config.services[serviceId];
     const extensionApi = new ExtensionApi(self, serviceId, serviceDefinition);
+    const cached = self.cache[serviceId];
     let extraHandlers;
 
-    const output = self.cache[serviceId] || new Promise((resolve) => {
+    if (cached) {
+        return cached;
+    }
+
+    const output = new Promise((resolve) => {
 
         if (!serviceDefinition) {
             throw new Error(`Missing service definition for ${ serviceId }`);
