@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "dist": "babel src --out-dir dist",
-    "test": "mocha-webpack --webpack-config webpack.config-test.js --require source-map-support/register ./test/test-main.js"
+    "test": "mocha-webpack --webpack-config webpack.config-test.js --require source-map-support/register ./test/test-main.js",
+    "tdd": "mocha-webpack --watch --webpack-config webpack.config-test.js --require source-map-support/register ./test/test-main.js"
   },
   "author": "Casumo <frontend@casumo.com> (https://www.casumo.com/)",
   "license": "MIT",
