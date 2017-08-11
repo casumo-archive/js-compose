@@ -46,9 +46,8 @@ function get (id) {
             throw new Error('No module loader');
         }
 
-        const promises = extensionApi.resolveArgs(definition.args || []);
-
-        promises.unshift(moduleLoader.loadModule(extensionApi));
+        const args = definition.args || [];
+        const promises = getPromises(args, moduleLoader, extensionApi);
 
         const initialiser = _.find(self.initialisers, (initialiser) => {
             return initialiser.canInitialise(extensionApi);
@@ -234,4 +233,13 @@ function getModuleLoader (moduleLoaders, extensionApi) {
     return _.find(moduleLoaders, moduleLoader => {
         return moduleLoader.canLoadModule(extensionApi);
     });
+}
+
+function getPromises (args, moduleLoader, extensionApi) {
+    const modulePromise = moduleLoader.loadModule(extensionApi);
+    const promises = extensionApi.resolveArgs(args);
+
+    promises.unshift(modulePromise);
+
+    return promises;
 }
