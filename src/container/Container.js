@@ -30,51 +30,71 @@ function get (serviceId) {
     let extraHandlers;
 
     if (cached) {
+        runOnGetCompleteCallbacks({ serviceDefinition, extensionApi });
+
         return cached;
     }
 
-    const output = new Promise((resolve) => {
+    return new Promise((resolve) => {
 
-        if (!serviceDefinition) {
-            throw new Error(`Missing service definition for ${ serviceId }`);
-        }
-
-        if (countOccurrencesInArray(self.chain, serviceId) > 1) {
-            throw new Error(`Circular dependency detected: ${ self.chain.concat(serviceId).join(', ')}` );
-        }
-
-        extraHandlers = getExtraHandlers(serviceDefinition.extras, self.extraHandlers, extensionApi);
-
-        const moduleLoader = getModuleLoader(self.moduleLoaders, extensionApi);
-
-        if (!moduleLoader) {
-            throw new Error('No module loader');
-        }
-
-        const initialiser = getInitialiser(self.initialisers, extensionApi);
-
-        if (!initialiser) {
-            throw new Error('No initialiser');
-        }
-
-        const args = serviceDefinition.args || [];
-        const serviceAndArgPromises = getServiceAndArgPromises(args, moduleLoader, extensionApi);
-
-        self.cache[serviceId] = Promise
-            .all(serviceAndArgPromises)
-            .then(serviceAndArgs => runBeforeInitialisedCallbacks(serviceAndArgs, extraHandlers, serviceDefinition.extras, extensionApi))
-            .then(serviceAndArgs => initialiseService(serviceAndArgs, initialiser, extraHandlers, serviceDefinition.extras, extensionApi))
-            .then(instance => runOnInitialisedCallbacks(instance, extraHandlers, serviceDefinition.extras, extensionApi));
+        self.cache[serviceId] = getServiceAndArgs(
+                serviceId,
+                serviceDefinition,
+                self.chain,
+                self.extraHandlers,
+                self.moduleLoaders,
+                self.initialisers,
+                extensionApi
+            )
+            .then(runBeforeInitialisedCallbacks)
+            .then(initialiseService)
+            .then(runOnInitialisedCallbacks)
+            .then(runOnGetCompleteCallbacks)
+            .then(({ instance }) => instance);
 
         resolve(self.cache[serviceId]);
 
     }).catch(error => {
         throw new ServiceError(serviceId, error);
     });
+}
 
-    runOnGetCompleteCallbacks(extraHandlers, serviceDefinition, extensionApi);
+function getServiceAndArgs (
+    serviceId,
+    serviceDefinition,
+    chain,
+    availableExtraHandlers,
+    moduleLoaders,
+    initialisers,
+    extensionApi
+) {
+    if (!serviceDefinition) {
+        throw new Error(`Missing service definition for ${ serviceId }`);
+    }
 
-    return output;
+    if (countOccurrencesInArray(chain, serviceId) > 1) {
+        throw new Error(`Circular dependency detected: ${ chain.concat(serviceId).join(', ')}` );
+    }
+
+    const extraHandlers = getExtraHandlers(serviceDefinition.extras, availableExtraHandlers, extensionApi);
+    const moduleLoader = getAndCheckModuleLoader(moduleLoaders, extensionApi);
+    const initialiser = getAndCheckInitialiser(initialisers, extensionApi);
+    const extraDefinitions = serviceDefinition.extras;
+    const args = serviceDefinition.args || [];
+    const serviceAndArgPromises = getServiceAndArgPromises(args, moduleLoader, extensionApi);
+
+    return Promise
+        .all(serviceAndArgPromises)
+        .then(serviceAndArgs => ({
+            serviceId,
+            serviceDefinition,
+            serviceAndArgs,
+            extraHandlers,
+            initialiser,
+            extraDefinitions,
+            moduleLoader,
+            extensionApi
+        }));
 }
 
 /**
@@ -165,21 +185,26 @@ function countOccurrencesInArray (array, item) {
 }
 
 function getExtraHandlers (extraDefinitions = [], extraHandlers, extensionApi) {
-    return _.map(extraDefinitions, extraDefinition => {
-        const handler = getHandlersForExtraDefinition(extraDefinition, extraHandlers, extensionApi);
-
-        if (!handler) {
-            throw new Error(`No extra handler for ${extraDefinition}`);
-        }
-
-        return handler;
-    });
+    return _.map(
+        extraDefinitions,
+        extraDefinition => getAndCheckExtraHandler(extraDefinition, extraHandlers, extensionApi)
+    );
 }
 
-function getHandlersForExtraDefinition (extraDefinition, extraHandlers, extensionApi) {
+function getExtraHandler (extraDefinition, extraHandlers, extensionApi) {
     return _.find(extraHandlers, extraHandler => {
         return extraHandler.canHandleExtra(extraDefinition, extensionApi);
     });
+}
+
+function getAndCheckExtraHandler (extraDefinition, extraHandlers, extensionApi) {
+    const handler = getExtraHandler(extraDefinition, extraHandlers, extensionApi);
+
+    if (!handler) {
+        throw new Error(`No extra handler for ${extraDefinition}`);
+    }
+
+    return handler;
 }
 
 function getModuleLoader (moduleLoaders, extensionApi) {
@@ -188,10 +213,31 @@ function getModuleLoader (moduleLoaders, extensionApi) {
     });
 }
 
+function getAndCheckModuleLoader (moduleLoaders, extensionApi) {
+    const moduleLoader = getModuleLoader(moduleLoaders, extensionApi);
+
+    if (!moduleLoader) {
+        throw new Error('No module loader');
+    }
+
+    return moduleLoader;
+}
+
 function getInitialiser (initialisers, extensionApi) {
     return _.find(initialisers, initialiser => {
         return initialiser.canInitialise(extensionApi);
     });
+}
+
+function getAndCheckInitialiser (initialisers, extensionApi) {
+    const initialiser = getInitialiser(initialisers, extensionApi);
+
+    if (!initialiser) {
+        throw new Error('No initialiser');
+    }
+
+    return initialiser;
+
 }
 
 function getServiceAndArgPromises (args, moduleLoader, extensionApi) {
@@ -203,7 +249,8 @@ function getServiceAndArgPromises (args, moduleLoader, extensionApi) {
     return promises;
 }
 
-function runBeforeInitialisedCallbacks (contents, extraHandlers, extraDefinitions, extensionApi) {
+function runBeforeInitialisedCallbacks (params) {
+    const { serviceAndArgs, extraHandlers, extraDefinitions, extensionApi } = params;
     const promises = _.map(extraHandlers, (handler, index) => {
         const callback = handler.beforeServiceInitialised;
 
@@ -217,11 +264,12 @@ function runBeforeInitialisedCallbacks (contents, extraHandlers, extraDefinition
 
     return Promise
         .all(promises)
-        .then(() => contents);
+        .then(() => params);
 }
 
-function initialiseService (serviceAndArgs, initialiser, extraHandlers, extraDefinitions, extensionApi) {
-    return initialiser.initialise(
+function initialiseService (params) {
+    const { serviceAndArgs, initialiser, extraHandlers, extraDefinitions, extensionApi } = params;
+    const instance = initialiser.initialise(
         // eslint-disable-next-line prefer-arrow-callback
         function instanceCreatedCallback (instance) {
 
@@ -241,9 +289,12 @@ function initialiseService (serviceAndArgs, initialiser, extraHandlers, extraDef
         },
         ...serviceAndArgs
     );
+
+    return Promise.resolve(_.extend({}, params, { instance }));
 }
 
-function runOnInitialisedCallbacks (instance, extraHandlers, extraDefinitions, extensionApi) {
+function runOnInitialisedCallbacks (params) {
+    const { instance, extraHandlers, extraDefinitions, extensionApi } = params;
     const promises = _.map(extraHandlers, (handler, extraIndex) => {
         const callback = handler.onServiceInitialised;
 
@@ -258,10 +309,12 @@ function runOnInitialisedCallbacks (instance, extraHandlers, extraDefinitions, e
 
     return Promise
         .all(promises)
-        .then(() => instance);
+        .then(() => params);
 }
 
-function runOnGetCompleteCallbacks (extraHandlers, serviceDefinition, extensionApi) {
+function runOnGetCompleteCallbacks (params) {
+    const { extraHandlers, serviceDefinition, extensionApi } = params;
+
     _.each(extraHandlers, (handler, index) => {
         const callback = handler.onGetComplete;
 
@@ -272,4 +325,6 @@ function runOnGetCompleteCallbacks (extraHandlers, serviceDefinition, extensionA
             );
         }
     });
+
+    return params;
 }

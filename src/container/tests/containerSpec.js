@@ -536,13 +536,12 @@ describe('Container', () => {
                 }
             );
 
-            container.get('exampleService');
-
-            extraHandler.onGetComplete.should.have.been.calledWith(
-                'extra',
-                sinon.match.instanceOf(ExtensionApi)
-            );
-
+            return container.get('exampleService').then(() => {
+                extraHandler.onGetComplete.should.have.been.calledWith(
+                    'extra',
+                    sinon.match.instanceOf(ExtensionApi)
+                );
+            });
         });
 
         it('only requires canHandleExtra method on extra handlers', (done) => {
