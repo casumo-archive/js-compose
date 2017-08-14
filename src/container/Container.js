@@ -34,8 +34,8 @@ function get (serviceId) {
     }
 
     return new Promise((resolve) => {
-
-        self.cache[serviceId] = getServiceAndArgs(
+        // Add the service to the cache as soon as possible
+        self.cache[serviceId] = loadServiceAndArgs(
                 serviceId,
                 serviceDefinition,
                 self.chain,
@@ -57,7 +57,7 @@ function get (serviceId) {
     });
 }
 
-function getServiceAndArgs (
+function loadServiceAndArgs (
     serviceId,
     serviceDefinition,
     chain,
