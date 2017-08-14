@@ -100,71 +100,6 @@ function lint () {
         .then(results => _.compact(_.flattenDeep(results)));
 }
 
-function getServiceErrors (serviceDefinition, serviceId) {
-    let errors = [];
-    const extraDefinitions = serviceDefinition.extras;
-    const extensionApi = new ExtensionApi(this, serviceId, serviceDefinition);
-    const moduleLoader = getModuleLoader(this.moduleLoaders, extensionApi);
-    const initialiser = getInitialiser(this.initialisers, extensionApi);
-
-    errors = errors.concat(getModuleLoaderErrors(moduleLoader, serviceId, extensionApi));
-    errors = errors.concat(getInitialiserErrors(initialiser, serviceId));
-    errors = errors.concat(getArgErrors(serviceId, serviceDefinition, extensionApi));
-    errors = errors.concat(getExtrasErrors(extraDefinitions, serviceId, this.extraHandlers, extensionApi));
-
-    return Promise.all(errors);
-}
-
-function getInitialiserErrors (initialiser, serviceId) {
-    if (!initialiser) {
-        return [`Missing initialiser for ${ serviceId }`];
-    }
-}
-
-function getModuleLoaderErrors (moduleLoader, serviceId, extensionApi) {
-    if (!moduleLoader) {
-        return [`Missing module loader for ${ serviceId }`];
-    } else if (moduleLoader.lintLoader) {
-        return [moduleLoader.lintLoader(extensionApi)];
-    }
-}
-
-function getArgErrors (serviceId, serviceDefinition, extensionApi) {
-    const { args } = serviceDefinition;
-    const errors = [];
-    const boundLintArg = _.partial(lintArg, serviceId, extensionApi);
-
-    return _.filter(_.map(args, boundLintArg));
-}
-
-function lintArg (serviceId, extensionApi, argDefinition, index) {
-    try {
-        const argResolver = extensionApi.getArgResolver(argDefinition);
-
-        if (argResolver.lintArg) {
-            return argResolver.lintArg(argDefinition, extensionApi);
-        }
-    } catch (e) {
-        return `Missing argResolver at [${ index }] for ${ serviceId }`;
-    }
-}
-
-function getExtrasErrors (extraDefinitions, serviceId, extraHandlers, extensionApi) {
-    const boundLintExtra = _.partial(lintExtra, serviceId, extensionApi, extraHandlers);
-
-    return _.filter(_.map(extraDefinitions, boundLintExtra));
-}
-
-function lintExtra (serviceId, extensionApi, extraHandlers, extraDefinition, index) {
-    const extraHandler = getExtraHandler(extraDefinition, extraHandlers, extensionApi);
-
-    if (!extraHandler) {
-        return `Missing extraHandler at [${ index }] for ${ serviceId }`;
-    } else if (extraHandler.lintExtra) {
-        return extraHandler.lintExtra(extraDefinition, extensionApi);
-    }
-}
-
 /**
  * @static
  *
@@ -186,6 +121,71 @@ export function defaultInitialiser (initialiser) {
     });
 }
 
+function getServiceErrors (serviceDefinition, serviceId) {
+    let errors = [];
+    const extraDefinitions = serviceDefinition.extras;
+    const extensionApi = new ExtensionApi(this, serviceId, serviceDefinition);
+    const moduleLoader = getModuleLoader(this.moduleLoaders, extensionApi);
+    const initialiser = getInitialiser(this.initialisers, extensionApi);
+
+    errors = errors.concat(getModuleLoaderErrors(moduleLoader, serviceId, extensionApi));
+    errors = errors.concat(getInitialiserErrors(initialiser, serviceId));
+    errors = errors.concat(getArgsErrors(serviceId, serviceDefinition, extensionApi));
+    errors = errors.concat(getExtrasErrors(extraDefinitions, serviceId, this.extraHandlers, extensionApi));
+
+    return Promise.all(errors);
+}
+
+function getInitialiserErrors (initialiser, serviceId) {
+    if (!initialiser) {
+        return [`Missing initialiser for ${ serviceId }`];
+    }
+}
+
+function getModuleLoaderErrors (moduleLoader, serviceId, extensionApi) {
+    if (!moduleLoader) {
+        return [`Missing module loader for ${ serviceId }`];
+    } else if (moduleLoader.lintLoader) {
+        return [moduleLoader.lintLoader(extensionApi)];
+    }
+}
+
+function getArgsErrors (serviceId, serviceDefinition, extensionApi) {
+    const { args } = serviceDefinition;
+    const errors = [];
+    const boundLintArg = _.partial(getSingleArgErrors, serviceId, extensionApi);
+
+    return _.filter(_.map(args, boundLintArg));
+}
+
+function getSingleArgErrors (serviceId, extensionApi, argDefinition, index) {
+    try {
+        const argResolver = extensionApi.getArgResolver(argDefinition);
+
+        if (argResolver.lintArg) {
+            return argResolver.lintArg(argDefinition, extensionApi);
+        }
+    } catch (e) {
+        return `Missing argResolver at [${ index }] for ${ serviceId }`;
+    }
+}
+
+function getExtrasErrors (extraDefinitions, serviceId, extraHandlers, extensionApi) {
+    const boundLintExtra = _.partial(getSingleExtraErrors, serviceId, extensionApi, extraHandlers);
+
+    return _.filter(_.map(extraDefinitions, boundLintExtra));
+}
+
+function getSingleExtraErrors (serviceId, extensionApi, extraHandlers, extraDefinition, index) {
+    const extraHandler = getExtraHandler(extraDefinition, extraHandlers, extensionApi);
+
+    if (!extraHandler) {
+        return `Missing extraHandler at [${ index }] for ${ serviceId }`;
+    } else if (extraHandler.lintExtra) {
+        return extraHandler.lintExtra(extraDefinition, extensionApi);
+    }
+}
+
 function countOccurrencesInArray (array, item) {
     return array
         .filter(arrayItem => _.isEqual(arrayItem, item))
@@ -200,13 +200,11 @@ function getExtraHandlers (extraDefinitions = [], extraHandlers, extensionApi) {
 }
 
 function getExtraHandler (extraDefinition, extraHandlers, extensionApi) {
-    return _.find(extraHandlers, extraHandler => {
-        return extraHandler.canHandleExtra(extraDefinition, extensionApi);
-    });
+    return _.find(extraHandlers, handler => handler.canHandleExtra(extraDefinition, extensionApi));
 }
 
-function getAndCheckExtraHandler (extraDefinition, extraHandlers, extensionApi) {
-    const handler = getExtraHandler(extraDefinition, extraHandlers, extensionApi);
+function getAndCheckExtraHandler (...args) {
+    const handler = getExtraHandler(...args);
 
     if (!handler) {
         throw new Error(`No extra handler for ${extraDefinition}`);
@@ -216,13 +214,11 @@ function getAndCheckExtraHandler (extraDefinition, extraHandlers, extensionApi) 
 }
 
 function getModuleLoader (moduleLoaders, extensionApi) {
-    return _.find(moduleLoaders, moduleLoader => {
-        return moduleLoader.canLoadModule(extensionApi);
-    });
+    return _.find(moduleLoaders, loader => loader.canLoadModule(extensionApi));
 }
 
-function getAndCheckModuleLoader (moduleLoaders, extensionApi) {
-    const moduleLoader = getModuleLoader(moduleLoaders, extensionApi);
+function getAndCheckModuleLoader (...args) {
+    const moduleLoader = getModuleLoader(...args);
 
     if (!moduleLoader) {
         throw new Error('No module loader');
@@ -232,13 +228,11 @@ function getAndCheckModuleLoader (moduleLoaders, extensionApi) {
 }
 
 function getInitialiser (initialisers, extensionApi) {
-    return _.find(initialisers, initialiser => {
-        return initialiser.canInitialise(extensionApi);
-    });
+    return _.find(initialisers, initialiser => initialiser.canInitialise(extensionApi));
 }
 
-function getAndCheckInitialiser (initialisers, extensionApi) {
-    const initialiser = getInitialiser(initialisers, extensionApi);
+function getAndCheckInitialiser (...args) {
+    const initialiser = getInitialiser(...args);
 
     if (!initialiser) {
         throw new Error('No initialiser');
