@@ -95,59 +95,74 @@ function loadServiceAndArgs (
  */
 function lint () {
 
-    return Promise.all(_.map(this.config.services, (serviceDefinition, serviceId) => {
+    return Promise
+        .all(_.map(this.config.services, getServiceErrors.bind(this)))
+        .then(results => _.compact(_.flattenDeep(results)));
+}
 
-        const errors = [];
-        const extensionApi = new ExtensionApi(this, serviceId, serviceDefinition);
+function getServiceErrors (serviceDefinition, serviceId) {
+    let errors = [];
+    const extraDefinitions = serviceDefinition.extras;
+    const extensionApi = new ExtensionApi(this, serviceId, serviceDefinition);
+    const moduleLoader = getModuleLoader(this.moduleLoaders, extensionApi);
+    const initialiser = getInitialiser(this.initialisers, extensionApi);
 
-        const moduleLoader = getModuleLoader(this.moduleLoaders, extensionApi);
+    errors = errors.concat(getModuleLoaderErrors(moduleLoader, serviceId, extensionApi));
+    errors = errors.concat(getInitialiserErrors(initialiser, serviceId));
+    errors = errors.concat(getArgErrors(serviceId, serviceDefinition, extensionApi));
+    errors = errors.concat(getExtrasErrors(extraDefinitions, serviceId, this.extraHandlers, extensionApi));
 
-        if (!moduleLoader) {
-            errors.push(`Missing module loader for ${serviceId}`);
-        } else if (moduleLoader.lintLoader) {
-            errors.push(moduleLoader.lintLoader(extensionApi));
+    return Promise.all(errors);
+}
+
+function getInitialiserErrors (initialiser, serviceId) {
+    if (!initialiser) {
+        return [`Missing initialiser for ${ serviceId }`];
+    }
+}
+
+function getModuleLoaderErrors (moduleLoader, serviceId, extensionApi) {
+    if (!moduleLoader) {
+        return [`Missing module loader for ${ serviceId }`];
+    } else if (moduleLoader.lintLoader) {
+        return [moduleLoader.lintLoader(extensionApi)];
+    }
+}
+
+function getArgErrors (serviceId, serviceDefinition, extensionApi) {
+    const { args } = serviceDefinition;
+    const errors = [];
+    const boundLintArg = _.partial(lintArg, serviceId, extensionApi);
+
+    return _.filter(_.map(args, boundLintArg));
+}
+
+function lintArg (serviceId, extensionApi, argDefinition, index) {
+    try {
+        const argResolver = extensionApi.getArgResolver(argDefinition);
+
+        if (argResolver.lintArg) {
+            return argResolver.lintArg(argDefinition, extensionApi);
         }
+    } catch (e) {
+        return `Missing argResolver at [${ index }] for ${ serviceId }`;
+    }
+}
 
-        const initialiser = _.find(this.initialisers, (initialiser) => {
-            return initialiser.canInitialise(extensionApi);
-        });
+function getExtrasErrors (extraDefinitions, serviceId, extraHandlers, extensionApi) {
+    const boundLintExtra = _.partial(lintExtra, serviceId, extensionApi, extraHandlers);
 
-        if (!initialiser) {
-            errors.push(`Missing initialiser for ${serviceId}`);
-        }
+    return _.filter(_.map(extraDefinitions, boundLintExtra));
+}
 
-        _.each(serviceDefinition.args, (argDefinition, i) => {
+function lintExtra (serviceId, extensionApi, extraHandlers, extraDefinition, index) {
+    const extraHandler = getExtraHandler(extraDefinition, extraHandlers, extensionApi);
 
-            try {
-                const argResolver = extensionApi.getArgResolver(argDefinition);
-
-                if (argResolver.lintArg) {
-                    errors.push(argResolver.lintArg(argDefinition, extensionApi));
-                }
-            } catch (e) {
-                errors.push(`Missing argResolver at [${i}] for ${serviceId}`);
-            }
-
-        });
-
-        _.each(serviceDefinition.extras, (extraDefinition, i) => {
-
-            const extraHandler = _.find(this.extraHandlers, (extraHandler) => {
-                return extraHandler.canHandleExtra(extraDefinition, extensionApi);
-            });
-
-            if (!extraHandler) {
-                errors.push(`Missing extraHandler at [${i}] for ${serviceId}`);
-            } else if (extraHandler.lintExtra) {
-                errors.push(extraHandler.lintExtra(extraDefinition, extensionApi));
-            }
-
-        });
-
-        return Promise.all(errors);
-
-    })).then((results) => _.compact(_.flattenDeep(results)));
-
+    if (!extraHandler) {
+        return `Missing extraHandler at [${ index }] for ${ serviceId }`;
+    } else if (extraHandler.lintExtra) {
+        return extraHandler.lintExtra(extraDefinition, extensionApi);
+    }
 }
 
 /**

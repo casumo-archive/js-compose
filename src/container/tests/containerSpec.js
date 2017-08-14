@@ -15,7 +15,7 @@ let initialiser;
 let extraHandler;
 let extensionApi;
 
-describe('Container', () => {
+describe.only('Container', () => {
 
     beforeEach(() => {
 
