@@ -22,12 +22,10 @@ export default function Container (extensions, config) {
  * @return {Promise}
  */
 function get (serviceId) {
-
     const self = this;
     const serviceDefinition = self.config.services[serviceId];
     const extensionApi = new ExtensionApi(self, serviceId, serviceDefinition);
     const cached = self.cache[serviceId];
-    let extraHandlers;
 
     if (cached) {
         runOnGetCompleteCallbacks({ serviceDefinition, extensionApi });
@@ -68,19 +66,14 @@ function getServiceAndArgs (
     initialisers,
     extensionApi
 ) {
-    if (!serviceDefinition) {
-        throw new Error(`Missing service definition for ${ serviceId }`);
-    }
+    checkIfServiceExists(serviceId, serviceDefinition);
+    checkCircularDependencies(chain, serviceId);
 
-    if (countOccurrencesInArray(chain, serviceId) > 1) {
-        throw new Error(`Circular dependency detected: ${ chain.concat(serviceId).join(', ')}` );
-    }
-
-    const extraHandlers = getExtraHandlers(serviceDefinition.extras, availableExtraHandlers, extensionApi);
+    const args = serviceDefinition.args || [];
+    const extraDefinitions = serviceDefinition.extras;
+    const extraHandlers = getExtraHandlers(extraDefinitions, availableExtraHandlers, extensionApi);
     const moduleLoader = getAndCheckModuleLoader(moduleLoaders, extensionApi);
     const initialiser = getAndCheckInitialiser(initialisers, extensionApi);
-    const extraDefinitions = serviceDefinition.extras;
-    const args = serviceDefinition.args || [];
     const serviceAndArgPromises = getServiceAndArgPromises(args, moduleLoader, extensionApi);
 
     return Promise
@@ -327,4 +320,18 @@ function runOnGetCompleteCallbacks (params) {
     });
 
     return params;
+}
+
+function checkCircularDependencies (chain, serviceId) {
+    if (countOccurrencesInArray(chain, serviceId) > 1) {
+        const dependencyChain = chain.concat(serviceId).join(', ');
+
+        throw new Error(`Circular dependency detected: ${ dependencyChain }` );
+    }
+}
+
+function checkIfServiceExists (serviceId, serviceDefinition) {
+    if (!serviceDefinition) {
+        throw new Error(`Missing service definition for ${ serviceId }`);
+    }
 }
