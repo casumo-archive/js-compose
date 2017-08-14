@@ -251,6 +251,33 @@ function getServiceAndArgPromises (args, moduleLoader, extensionApi) {
     return promises;
 }
 
+function initialiseService (params) {
+    const { serviceAndArgs, initialiser, extraHandlers, extraDefinitions, extensionApi } = params;
+    const instance = initialiser.initialise(
+        instance => runOnInstanceCreatedCallback(instance, params),
+        ...serviceAndArgs
+    );
+    const paramsWithInstance = _.extend({}, params, { instance });
+
+    return Promise.resolve(paramsWithInstance);
+}
+
+function runOnInstanceCreatedCallback (instance, params) {
+    const { extraHandlers, extraDefinitions, extensionApi } = params;
+
+    extraHandlers.forEach((handler, index) => {
+        const callback = handler.onServiceInstanceCreated;
+
+        if (callback) {
+            callback(
+                instance,
+                extraDefinitions[index],
+                extensionApi
+            );
+        }
+    });
+}
+
 function runBeforeInitialisedCallbacks (params) {
     const { serviceAndArgs, extraHandlers, extraDefinitions, extensionApi } = params;
     const promises = _.map(extraHandlers, (handler, index) => {
@@ -267,32 +294,6 @@ function runBeforeInitialisedCallbacks (params) {
     return Promise
         .all(promises)
         .then(() => params);
-}
-
-function initialiseService (params) {
-    const { serviceAndArgs, initialiser, extraHandlers, extraDefinitions, extensionApi } = params;
-    const instance = initialiser.initialise(
-        // eslint-disable-next-line prefer-arrow-callback
-        function instanceCreatedCallback (instance) {
-
-            extraHandlers.forEach((handler, index) => {
-
-                if (handler.onServiceInstanceCreated) {
-
-                    handler.onServiceInstanceCreated(
-                        instance,
-                        extraDefinitions[index],
-                        extensionApi
-                    );
-                }
-
-            });
-
-        },
-        ...serviceAndArgs
-    );
-
-    return Promise.resolve(_.extend({}, params, { instance }));
 }
 
 function runOnInitialisedCallbacks (params) {
