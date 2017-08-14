@@ -57,6 +57,37 @@ function get (serviceId) {
     });
 }
 
+/**
+ * @return {Promise<Array<String>>} - A list of lint errors
+ */
+function lint () {
+
+    return Promise
+        .all(_.map(this.config.services, getServiceErrors.bind(this)))
+        .then(results => _.compact(_.flattenDeep(results)));
+}
+
+/**
+ * @static
+ *
+ * @param {Initialiser} initialiser
+ *
+ * @return {Initialiser}
+ */
+export function defaultInitialiser (initialiser) {
+
+    return _.extend({}, initialiser, {
+        canInitialise (extensionApi) {
+
+            if (!extensionApi.serviceDefinition.init) {
+                return true;
+            }
+
+            return initialiser.canInitialise(extensionApi);
+        }
+    });
+}
+
 function loadServiceAndArgs (
     serviceId,
     serviceDefinition,
@@ -90,106 +121,18 @@ function loadServiceAndArgs (
         }));
 }
 
-/**
- * @return {Promise<Array<String>>} - A list of lint errors
- */
-function lint () {
+function checkCircularDependencies (chain, serviceId) {
+    if (countOccurrencesInArray(chain, serviceId) > 1) {
+        const dependencyChain = chain.concat(serviceId).join(', ');
 
-    return Promise
-        .all(_.map(this.config.services, getServiceErrors.bind(this)))
-        .then(results => _.compact(_.flattenDeep(results)));
-}
-
-/**
- * @static
- *
- * @param {Initialiser} initialiser
- *
- * @return {Initialiser}
- */
-export function defaultInitialiser (initialiser) {
-
-    return _.extend({}, initialiser, {
-        canInitialise (extensionApi) {
-
-            if (!extensionApi.serviceDefinition.init) {
-                return true;
-            }
-
-            return initialiser.canInitialise(extensionApi);
-        }
-    });
-}
-
-function getServiceErrors (serviceDefinition, serviceId) {
-    let errors = [];
-    const extraDefinitions = serviceDefinition.extras;
-    const extensionApi = new ExtensionApi(this, serviceId, serviceDefinition);
-    const moduleLoader = getModuleLoader(this.moduleLoaders, extensionApi);
-    const initialiser = getInitialiser(this.initialisers, extensionApi);
-
-    errors = errors.concat(getModuleLoaderErrors(moduleLoader, serviceId, extensionApi));
-    errors = errors.concat(getInitialiserErrors(initialiser, serviceId));
-    errors = errors.concat(getArgsErrors(serviceId, serviceDefinition, extensionApi));
-    errors = errors.concat(getExtrasErrors(extraDefinitions, serviceId, this.extraHandlers, extensionApi));
-
-    return Promise.all(errors);
-}
-
-function getInitialiserErrors (initialiser, serviceId) {
-    if (!initialiser) {
-        return [`Missing initialiser for ${ serviceId }`];
+        throw new Error(`Circular dependency detected: ${ dependencyChain }` );
     }
 }
 
-function getModuleLoaderErrors (moduleLoader, serviceId, extensionApi) {
-    if (!moduleLoader) {
-        return [`Missing module loader for ${ serviceId }`];
-    } else if (moduleLoader.lintLoader) {
-        return [moduleLoader.lintLoader(extensionApi)];
+function checkIfServiceExists (serviceId, serviceDefinition) {
+    if (!serviceDefinition) {
+        throw new Error(`Missing service definition for ${ serviceId }`);
     }
-}
-
-function getArgsErrors (serviceId, serviceDefinition, extensionApi) {
-    const { args } = serviceDefinition;
-    const errors = [];
-    const boundLintArg = _.partial(getSingleArgErrors, serviceId, extensionApi);
-
-    return _.filter(_.map(args, boundLintArg));
-}
-
-function getSingleArgErrors (serviceId, extensionApi, argDefinition, index) {
-    try {
-        const argResolver = extensionApi.getArgResolver(argDefinition);
-
-        if (argResolver.lintArg) {
-            return argResolver.lintArg(argDefinition, extensionApi);
-        }
-    } catch (e) {
-        return `Missing argResolver at [${ index }] for ${ serviceId }`;
-    }
-}
-
-function getExtrasErrors (extraDefinitions, serviceId, extraHandlers, extensionApi) {
-    const boundLintExtra = _.partial(getSingleExtraErrors, serviceId, extensionApi, extraHandlers);
-
-    return _.filter(_.map(extraDefinitions, boundLintExtra));
-}
-
-function getSingleExtraErrors (serviceId, extensionApi, extraHandlers, extraDefinition, index) {
-    const extraHandler = getExtraHandler(extraDefinition, extraHandlers, extensionApi);
-
-    if (!extraHandler) {
-        return `Missing extraHandler at [${ index }] for ${ serviceId }`;
-    } else if (extraHandler.lintExtra) {
-        return extraHandler.lintExtra(extraDefinition, extensionApi);
-    }
-}
-
-function countOccurrencesInArray (array, item) {
-    return array
-        .filter(arrayItem => _.isEqual(arrayItem, item))
-        .length;
 }
 
 function getExtraHandlers (extraDefinitions = [], extraHandlers, extensionApi) {
@@ -202,6 +145,7 @@ function getExtraHandlers (extraDefinitions = [], extraHandlers, extensionApi) {
 function getExtraHandler (extraDefinition, extraHandlers, extensionApi) {
     return _.find(extraHandlers, handler => handler.canHandleExtra(extraDefinition, extensionApi));
 }
+
 
 function getAndCheckExtraHandler (...args) {
     const handler = getExtraHandler(...args);
@@ -332,16 +276,73 @@ function runOnGetCompleteCallbacks (params) {
     return params;
 }
 
-function checkCircularDependencies (chain, serviceId) {
-    if (countOccurrencesInArray(chain, serviceId) > 1) {
-        const dependencyChain = chain.concat(serviceId).join(', ');
+function countOccurrencesInArray (array, item) {
+    return array
+        .filter(arrayItem => _.isEqual(arrayItem, item))
+        .length;
+}
 
-        throw new Error(`Circular dependency detected: ${ dependencyChain }` );
+function getServiceErrors (serviceDefinition, serviceId) {
+    let errors = [];
+    const extraDefinitions = serviceDefinition.extras;
+    const extensionApi = new ExtensionApi(this, serviceId, serviceDefinition);
+    const moduleLoader = getModuleLoader(this.moduleLoaders, extensionApi);
+    const initialiser = getInitialiser(this.initialisers, extensionApi);
+
+    errors = errors.concat(getModuleLoaderErrors(moduleLoader, serviceId, extensionApi));
+    errors = errors.concat(getInitialiserErrors(initialiser, serviceId));
+    errors = errors.concat(getArgsErrors(serviceId, serviceDefinition, extensionApi));
+    errors = errors.concat(getExtrasErrors(extraDefinitions, serviceId, this.extraHandlers, extensionApi));
+
+    return Promise.all(errors);
+}
+
+function getInitialiserErrors (initialiser, serviceId) {
+    if (!initialiser) {
+        return [`Missing initialiser for ${ serviceId }`];
     }
 }
 
-function checkIfServiceExists (serviceId, serviceDefinition) {
-    if (!serviceDefinition) {
-        throw new Error(`Missing service definition for ${ serviceId }`);
+function getModuleLoaderErrors (moduleLoader, serviceId, extensionApi) {
+    if (!moduleLoader) {
+        return [`Missing module loader for ${ serviceId }`];
+    } else if (moduleLoader.lintLoader) {
+        return [moduleLoader.lintLoader(extensionApi)];
+    }
+}
+
+function getArgsErrors (serviceId, serviceDefinition, extensionApi) {
+    const { args } = serviceDefinition;
+    const errors = [];
+    const boundLintArg = _.partial(getSingleArgErrors, serviceId, extensionApi);
+
+    return _.filter(_.map(args, boundLintArg));
+}
+
+function getSingleArgErrors (serviceId, extensionApi, argDefinition, index) {
+    try {
+        const argResolver = extensionApi.getArgResolver(argDefinition);
+
+        if (argResolver.lintArg) {
+            return argResolver.lintArg(argDefinition, extensionApi);
+        }
+    } catch (e) {
+        return `Missing argResolver at [${ index }] for ${ serviceId }`;
+    }
+}
+
+function getExtrasErrors (extraDefinitions, serviceId, extraHandlers, extensionApi) {
+    const boundLintExtra = _.partial(getSingleExtraErrors, serviceId, extensionApi, extraHandlers);
+
+    return _.filter(_.map(extraDefinitions, boundLintExtra));
+}
+
+function getSingleExtraErrors (serviceId, extensionApi, extraHandlers, extraDefinition, index) {
+    const extraHandler = getExtraHandler(extraDefinition, extraHandlers, extensionApi);
+
+    if (!extraHandler) {
+        return `Missing extraHandler at [${ index }] for ${ serviceId }`;
+    } else if (extraHandler.lintExtra) {
+        return extraHandler.lintExtra(extraDefinition, extensionApi);
     }
 }
